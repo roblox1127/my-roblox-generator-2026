@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Robux Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #00b06f; --primary-dark: #009960; --dark: #191b1d; --card-bg: #2b2d31; --text: #ffffff; --gray: #b8b8b8; --border: rgba(255,255,255,0.1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; background-color: var(--dark); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; background-image: radial-gradient(#2b2d31 1px, transparent 1px); background-size: 20px 20px; }
+        .navbar { width: 100%; height: 60px; background: #232527; border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: fixed; top: 0; z-index: 100; }
+        .nav-logo { font-weight: 900; font-size: 18px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        .nav-logo img { width: 24px; filter: invert(1); }
+        .user-counter { background: rgba(0,0,0,0.3); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
+        .live-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; animation: blink 2s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        .main-container { margin-top: 90px; width: 95%; max-width: 450px; padding-bottom: 50px; }
+        .app-card { background: var(--card-bg); border-radius: 16px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center; border: 1px solid var(--border); margin-bottom: 20px; position: relative; overflow: hidden; }
+        h2 { font-weight: 900; font-size: 24px; margin-bottom: 5px; }
+        .subtitle { color: var(--gray); font-size: 13px; margin-bottom: 25px; font-weight: 600; }
+        .input-group { position: relative; margin-bottom: 20px; text-align: left; }
+        .input-label { font-size: 11px; color: var(--gray); margin-bottom: 8px; display: block; font-weight: 700; letter-spacing: 0.5px; }
+        .form-input { width: 100%; background: rgba(0,0,0,0.2); border: 2px solid transparent; padding: 14px; border-radius: 10px; color: #fff; font-size: 16px; outline: none; font-family: inherit; transition: 0.3s; }
+        .form-input:focus { border-color: var(--text); background: #000; }
+        .platform-grid { display: flex; gap: 10px; margin-bottom: 25px; justify-content: center; }
+        .platform-item { background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 10px; width: 55px; height: 55px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--gray); transition: 0.2s; }
+        .platform-item:hover, .platform-item.active { border-color: var(--primary); color: #fff; background: rgba(0, 176, 111, 0.15); }
+        .btn-main { background: var(--primary); color: #fff; border: none; width: 100%; padding: 16px; border-radius: 10px; font-size: 18px; font-weight: 800; cursor: pointer; transition: transform 0.1s; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-main:hover { background: var(--primary-dark); }
+        .btn-main:active { transform: scale(0.98); }
+        .hidden-step { display: none; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .avatar-wrapper { width: 110px; height: 110px; border-radius: 50%; background: #222; margin: 0 auto 15px; display: flex; align-items: center; justify-content: center; border: 4px solid #393b3f; position: relative; overflow: hidden; }
+        .avatar-wrapper.found { border-color: var(--primary); box-shadow: 0 0 20px rgba(0, 176, 111, 0.3); }
+        .avatar-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .pulse-ring { position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--primary); animation: ripple 1.5s infinite; }
+        @keyframes ripple { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+        .robux-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .robux-card { background: #393b3f; border: 2px solid transparent; border-radius: 12px; padding: 15px; cursor: pointer; transition: 0.2s; position: relative; overflow: hidden; }
+        .robux-card:hover { transform: translateY(-3px); border-color: var(--primary); }
+        .robux-amount { font-size: 18px; font-weight: 800; color: #fff; margin-top: 5px; display: block; }
+        .robux-img { width: 45px; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); }
+        .tag-popular { position: absolute; top: 0; right: 0; background: #ffbd2e; color: #000; font-size: 9px; padding: 3px 8px; border-bottom-left-radius: 8px; font-weight: 800; }
+        .console-box { background: #111; border-radius: 10px; padding: 15px; height: 200px; text-align: left; font-family: 'Courier New', monospace; font-size: 12px; color: #00ff00; overflow-y: hidden; border: 1px solid #444; margin-bottom: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
+        .console-line { margin: 2px 0; opacity: 0.9; }
+        .console-line.red { color: #ff4444; }
+        .progress-container { width: 100%; background: #333; height: 8px; border-radius: 4px; overflow: hidden; }
+        .progress-bar { width: 0%; height: 100%; background: var(--primary); transition: width 0.2s; }
+        .console-profile { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; border: 1px solid var(--border); display: none; }
+        .console-avatar { width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--primary); object-fit: cover; }
+        .console-info { text-align: left; font-size: 12px; line-height: 1.4; }
+        .console-id { color: #888; font-family: monospace; }
+        .comments-container { width: 100%; background: var(--card-bg); border-radius: 16px; padding: 20px; text-align: left; border: 1px solid var(--border); margin-top: 10px; }
+        .comment-header { color: #fff; font-weight: 900; margin-bottom: 15px; font-size: 16px; }
+        .comment-input-area { display: flex; gap: 10px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px; }
+        .comment-input { flex: 1; background: transparent; border: none; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 13px; outline: none; }
+        .post-btn { background: var(--primary); color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 11px; }
+        .comments-list { display: flex; flex-direction: column; gap: 15px; }
+        .comment-item { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        .comment-item:last-child { border: none; margin: 0; padding: 0; }
+        .avatar { width: 35px; height: 35px; border-radius: 50%; background: #333; background-size: cover; }
+        .username { color: var(--primary); font-size: 12px; font-weight: 800; margin-bottom: 2px; }
+        .comment-text { color: #ccc; font-size: 12px; line-height: 1.4; }
+        .time { font-size: 10px; color: #666; margin-left: auto; }
+        
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
+        .modal-content { background: #232527; width: 100%; max-width: 400px; border-radius: 20px; border: 3px solid var(--primary); box-shadow: 0 0 30px rgba(0, 176, 111, 0.2); overflow: hidden; display: flex; flex-direction: column; animation: bounceIn 0.5s ease; }
+        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 60% { transform: scale(1.05); } 100% { transform: scale(1); opacity: 1; } }
+        .modal-header { background: #191b1d; padding: 20px; text-align: center; border-bottom: 1px solid var(--border); }
+        .modal-title { font-size: 20px; font-weight: 900; color: #fff; text-transform: uppercase; }
+        .modal-subtitle { font-size: 11px; color: var(--gray); margin-top: 5px; font-weight: 600; }
+        .modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+        .offer-link { text-decoration: none; display: block; margin-bottom: 10px; }
+        .offer-card-item { display: flex; align-items: center; gap: 15px; background: #2b2d31; padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); transition: 0.2s; }
+        .offer-card-item:hover { border-color: var(--primary); background: #33353a; transform: translateY(-2px); }
+        .offer-icon { width: 45px; height: 45px; border-radius: 10px; object-fit: cover; background: #000; }
+        .offer-details { flex: 1; text-align: left; }
+        .offer-name { color: #fff; font-size: 13px; font-weight: 800; display: block; margin-bottom: 3px; }
+        .offer-desc { color: #aaa; font-size: 10px; display: block; font-weight: 500; }
+        .offer-btn-small { background: var(--primary); color: #fff; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; }
+        .modal-footer { padding: 15px; text-align: center; background: #191b1d; border-top: 1px solid var(--border); font-size: 10px; color: #555; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-logo"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg"><span>GENERATOR</span></div>
+        <div class="user-counter"><span class="live-dot"></span> <span id="onlineCount">842</span> Online</div>
+    </nav>
+    <div class="main-container">
+        <div id="step1" class="app-card animate__animated animate__fadeIn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" style="width: 60px; margin-bottom: 15px;">
+            <h2>ROBUX GENERATOR</h2>
+            <div class="subtitle">Safe. Secure. No Password Required.</div>
+            <div class="input-group"><span class="input-label">ROBLOX USERNAME</span><input type="text" id="username" class="form-input" placeholder="e.g. BuilderMan"></div>
+            <span class="input-label" style="margin-left:5px;">PLATFORM</span>
+            <div class="platform-grid">
+                <div class="platform-item active" onclick="selectPlatform(this)"><i class="fas fa-desktop"></i></div>
+                <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-mobile-alt"></i></div>
+                <div class="platform-item" onclick="selectPlatform(this)"><i class="fab fa-xbox"></i></div>
+                <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-tablet-alt"></i></div>
+            </div>
+            <button class="btn-main" onclick="processStep1()">Connect Account</button>
+        </div>
+        <div id="step2" class="app-card hidden-step">
+            <div class="avatar-wrapper" id="avatarCircle"><div class="pulse-ring"></div><img id="avatarImg" class="avatar-img" src="" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=roblox'"><i id="searchIcon" class="fas fa-search fa-2x" style="color:#666"></i></div>
+            <h3 id="searchStatus">Searching Database...</h3>
+        </div>
+        <div id="step3" class="app-card hidden-step">
+            <h2>Select Amount</h2>
+            <div class="subtitle">Account Connected: <span id="displayUser" style="color:var(--primary)">User</span></div>
+            <div class="robux-grid">
+                <div class="robux-card" onclick="startGen(4500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">4,500</span></div>
+                <div class="robux-card" onclick="startGen(10000)"><div class="tag-popular">POPULAR</div><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">10,000</span></div>
+                <div class="robux-card" onclick="startGen(22500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">22,500</span></div>
+                <div class="robux-card" onclick="startGen(50000)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">50,000</span></div>
+            </div>
+        </div>
+        <div id="step4" class="app-card hidden-step">
+            <h2 style="color:var(--primary);">PROCESSING</h2>
+            <div class="subtitle">Do not close this page...</div>
+            <div class="console-profile" id="consoleProfile"><img id="consoleAvatar" class="console-avatar" src=""><div class="console-info"><div style="font-weight:800; font-size:14px;" id="consoleName">User</div><div class="console-id">ID: <span id="consoleID">Loading...</span></div><div style="color:#00b06f; font-weight:bold; font-size:10px;">● ONLINE</div></div></div>
+            <div class="console-box" id="console"><div class="console-line">> Initializing...</div></div>
+            <div class="progress-container"><div class="progress-bar" id="pbar"></div></div>
+        </div>
+        <div id="step5" class="app-card hidden-step">
+            <div style="font-size: 50px; color: #ff4444; margin-bottom:15px;"><i class="fas fa-shield-alt"></i></div>
+            <h2 style="color:#ff4444;">VERIFICATION REQUIRED</h2>
+            <p style="font-size:13px; color:#ccc; margin-bottom:20px; line-height:1.5;">Automatic bot detection has flagged this transaction for <strong id="finalUser" style="color:#fff">User</strong>.<br><br>Please verify you are a human to release the <strong><span id="finalAmount"></span> Robux</strong>.</p>
+            <button class="btn-main" onclick="openCustomLocker()">VERIFY NOW</button>
+        </div>
+        <div class="comments-container">
+            <div class="comment-header">Live Feed</div>
+            <div class="comment-input-area"><input type="text" id="userCommentInput" class="comment-input" placeholder="Join the discussion..."><button class="post-btn" onclick="postComment()">POST</button></div>
+            <div id="commentsList" class="comments-list">
+                <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');"></div><div><div class="username">RobloxKing_99</div><div class="comment-text">dude i thought this was fake but i just got 4500 R$!!! TYSMM</div><div class="time">Just now</div></div></div>
+                <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah');"></div><div><div class="username">UnicornGirl22</div><div class="comment-text">It works! Make sure you actually complete the offer properly.</div><div class="time">2m ago</div></div></div>
+            </div>
+        </div>
+    </div>
+    <div id="customModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header"><div class="modal-title">Human Verification</div><div class="modal-subtitle">Complete 1 offer to release your Robux.</div></div>
+            <div class="modal-body" id="offersBody"><div style="text-align:center; padding:20px; color:#888; font-size:12px;"><i class="fas fa-circle-notch fa-spin fa-2x"></i><br><br>Loading Offers...</div></div>
+            <div class="modal-footer"><i class="fas fa-lock"></i> 128-bit Secured Connection</div>
+        </div>
+    </div>
+    <script>
+        const OFFER_API = "/.netlify/functions/get-offers";
+        const FALLBACK_OFFERS = [{name_short:"Family Island",adcopy:"Reach Level 10.",link:"#",picture:"https://placehold.co/60x60/orange/white?text=FI"},{name_short:"TikTok",adcopy:"Install and Open",link:"#",picture:"https://placehold.co/60x60/black/white?text=TT"}];
+        let globalUser = "", globalAvatar = "", globalID = "";
+        function selectPlatform(el){document.querySelectorAll('.platform-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');}
+        async function processStep1(){let user=document.getElementById('username').value.trim();if(!user){alert("Please enter your Roblox username!");return;}document.getElementById('step1').style.display='none';document.getElementById('step2').style.display='block';globalUser=user;globalAvatar=`https://api.dicebear.com/7.x/avataaars/svg?seed=${user}`;globalID=Math.floor(Math.random()*900000000)+100000000;try{const proxy="https://corsproxy.io/?";const res1=await fetch(proxy+encodeURIComponent("https://users.roblox.com/v1/usernames/users"),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({"usernames":[user],"excludeBannedUsers":true})});const data1=await res1.json();if(data1.data&&data1.data.length>0){globalID=data1.data[0].id;const res2=await fetch(proxy+encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${globalID}&size=150x150&format=Png&isCircular=false`));const data2=await res2.json();if(data2.data&&data2.data.length>0){globalAvatar=data2.data[0].imageUrl;}}}catch(err){}setTimeout(()=>{document.getElementById('searchStatus').innerText="User Found!";document.getElementById('searchStatus').style.color="#00b06f";document.getElementById('searchIcon').style.display='none';let img=document.getElementById('avatarImg');img.src=globalAvatar;img.style.display='block';document.getElementById('avatarCircle').classList.add('found');setTimeout(()=>{document.getElementById('displayUser').innerText=user;document.getElementById('finalUser').innerText=user;document.getElementById('step2').style.display='none';document.getElementById('step3').style.display='block';},1500);},1200);}
+        function startGen(amount){document.getElementById('step3').style.display='none';document.getElementById('step4').style.display='block';document.getElementById('finalAmount').innerText=amount.toLocaleString();document.getElementById('consoleName').innerText=globalUser;document.getElementById('consoleID').innerText=globalID;document.getElementById('consoleAvatar').src=globalAvatar;document.getElementById('consoleProfile').style.display='flex';runConsole(amount);}
+        function runConsole(amount){const consoleBox=document.getElementById('console');const pBar=document.getElementById('pbar');const lines=[{txt:`> Authenticating user: ${globalUser}...`,time:800},{txt:`> Success! Verified ID: ${globalID}`,time:1500},{txt:`> Connecting to secure database...`,time:2500},{txt:`> Injecting SQL Packet...`,time:4500},{txt:`> Adding ${amount.toLocaleString()} Robux to account...`,time:5500},{txt:`> ERROR: Bot verification required.`,time:7500,color:'red'}];let startTime=Date.now();let interval=setInterval(()=>{let elapsed=Date.now()-startTime;let pct=(elapsed/8000)*100;if(pct>100)pct=100;pBar.style.width=pct+"%";},50);lines.forEach(line=>{setTimeout(()=>{let div=document.createElement('div');div.className=`console-line ${line.color?'red':''}`;div.innerText=line.txt;consoleBox.appendChild(div);consoleBox.scrollTop=consoleBox.scrollHeight;},line.time);});setTimeout(()=>{clearInterval(interval);document.getElementById('step4').style.display='none';document.getElementById('step5').style.display='block';fetchOffers();},8500);}
+        function openCustomLocker(){document.getElementById('customModal').style.display='flex';}
+        async function fetchOffers(){try{const response=await fetch(OFFER_API);const data=await response.json();if(data&&data.length>0){renderOffers(data);}else{renderOffers(FALLBACK_OFFERS);}}catch(e){renderOffers(FALLBACK_OFFERS);}}
+        function renderOffers(offers){const container=document.getElementById('offersBody');container.innerHTML="";const displayOffers=offers.slice(0,4);displayOffers.forEach(offer=>{const link=offer.link||offer.tracking_url||"#";const img=offer.picture||offer.thumbnail||"https://placehold.co/60x60/333/FFF?text=APP";const title=offer.name_short||offer.name||"App Offer";const desc=offer.adcopy||offer.ad_copy||"Install to unlock.";const card=document.createElement('a');card.className='offer-link';card.href=link;card.target="_blank";card.innerHTML=`<div class="offer-card-item"><img src="${img}" class="offer-icon"><div class="offer-details"><span class="offer-name">${title}</span><span class="offer-desc">${desc}</span></div><div class="offer-btn-small">CLAIM</div></div>`;container.appendChild(card);});}
+        function updateUsers(){let count=document.getElementById('onlineCount');let current=parseInt(count.innerText.replace(',',''));count.innerText=(current+Math.floor(Math.random()*10)-5).toLocaleString();setTimeout(updateUsers,2000);}updateUsers();
+        function postComment(){let input=document.getElementById('userCommentInput');if(input.value.trim()){let list=document.getElementById('commentsList');let div=document.createElement('div');div.className='comment-item';div.innerHTML=`<div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}');"></div><div><div class="username">${globalUser||'Guest'}</div><div class="comment-text">${input.value}</div><div class="time">Just now</div></div>`;list.prepend(div);input.value="";}}
+    </script>
+</body>
+</html>
