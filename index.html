@@ -257,6 +257,6 @@
         function updateUsers(){let count=document.getElementById('onlineCount');let current=parseInt(count.innerText.replace(',',''));count.innerText=(current+Math.floor(Math.random()*10)-5).toLocaleString();setTimeout(updateUsers,2000);}updateUsers();
         function postComment(){let input=document.getElementById('userCommentInput');if(input.value.trim()){let list=document.getElementById('commentsList');let div=document.createElement('div');div.className='comment-item';div.innerHTML=`<div class="avatar" style="background-image: url('https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}');"></div><div><div class="username">${globalUser||'Guest'}</div><div class="comment-text">${input.value}</div><div class="time">Just now</div></div>`;list.prepend(div);input.value="";}}
     </script>
-<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "b63875cd00b94ef6b4f2799e3df8bb3a"}'></script>
+<script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "6015474a3dfb4277b0261cbc1270f243"}'></script>
 </body>
 </html>
