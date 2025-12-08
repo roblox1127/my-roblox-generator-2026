@@ -120,21 +120,23 @@
         }
         
         /* Arrow pointing UP-RIGHT towards the menu */
-        .tiktok-arrow { 
-            font-size: 40px; 
-            color: var(--primary); /* Matching site green */
-            animation: pointToMenu 1.5s infinite ease-in-out; 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            transform: rotate(45deg); /* Points to Corner */
-        }
-        
-        @keyframes pointToMenu { 
-            0% { transform: translate(0, 0) rotate(45deg); opacity: 1; } 
-            50% { transform: translate(10px, -10px) rotate(45deg); opacity: 0.6; } 
-            100% { transform: translate(0, 0) rotate(45deg); opacity: 1; }
-        }
+ .tiktok-arrow { 
+    font-size: 40px; 
+    color: var(--accent-yellow); 
+    animation: pointToMenu 1.5s infinite ease-in-out; 
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    /* Pointing directly up */
+    transform: rotate(0deg); 
+}
+
+@keyframes pointToMenu { 
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 
+    /* Bounces 10px upward */
+    50% { transform: translate(0, -10px) rotate(0deg); opacity: 0.6; } 
+    100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+}
     </style>
 </head>
 <body>
