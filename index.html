@@ -88,7 +88,7 @@
         .offer-btn-small { background: var(--primary); color: #fff; font-size: 10px; font-weight: 800; padding: 6px 12px; border-radius: 6px; text-transform: uppercase; }
         .modal-footer { padding: 15px; text-align: center; background: #191b1d; border-top: 1px solid var(--border); font-size: 10px; color: #555; }
 
-        /* --- TIKTOK BROWSER OVERLAY (Copied & Adjusted for this theme) --- */
+        /* --- TIKTOK BROWSER OVERLAY (Custom) --- */
         .tiktok-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); z-index: 99999;
@@ -120,23 +120,23 @@
         }
         
         /* Arrow pointing UP-RIGHT towards the menu */
- .tiktok-arrow { 
-    font-size: 40px; 
-    color: var(--accent-yellow); 
-    animation: pointToMenu 1.5s infinite ease-in-out; 
-    position: absolute; 
-    top: 20px; 
-    right: 20px; 
-    /* Pointing directly up */
-    transform: rotate(0deg); 
-}
-
-@keyframes pointToMenu { 
-    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 
-    /* Bounces 10px upward */
-    50% { transform: translate(0, -10px) rotate(0deg); opacity: 0.6; } 
-    100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
-}
+        .tiktok-arrow { 
+            font-size: 40px; 
+            color: var(--primary); 
+            animation: pointToMenu 1.5s infinite ease-in-out; 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            /* Pointing directly up */
+            transform: rotate(0deg); 
+        }
+        
+        @keyframes pointToMenu { 
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; } 
+            /* Bounces 10px upward */
+            50% { transform: translate(0, -10px) rotate(0deg); opacity: 0.6; } 
+            100% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -223,22 +223,38 @@
         </div>
     </div>
     <script>
-        // --- IN-APP BROWSER DETECTION LOGIC ---
+        // --- IN-APP BROWSER DETECTION & AUTO-OPEN ---
         (function() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
-            // Detects: Instagram, FB, TikTok, Snapchat, Line, Twitter, LinkedIn
             const isInApp = /Instagram|FBAN|FBAV|TikTok|musical_ly|Snapchat|Line|Twitter|LinkedIn/i.test(ua);
-            // Detects generic Android WebView
             const isAndroidWebView = /wv/.test(ua) && /Android/i.test(ua); 
 
             if (isInApp || isAndroidWebView) {
-                const overlay = document.getElementById('inAppBrowserWarning');
-                const content = document.getElementById('content-wrapper');
-                
-                if(overlay && content) {
-                    overlay.style.display = 'flex';
-                    content.style.filter = 'blur(15px)';
-                    content.style.pointerEvents = 'none'; // Disable clicking on site
+                // If on Android, try to auto-open in Chrome
+                if (/Android/i.test(ua)) {
+                    const intentUrl = 'intent://' + location.host + location.pathname + '#Intent;scheme=https;package=com.android.chrome;end';
+                    
+                    // Show warning if auto-open fails (after 500ms)
+                    setTimeout(function() {
+                        const overlay = document.getElementById('inAppBrowserWarning');
+                        const content = document.getElementById('content-wrapper');
+                        if(overlay && content) {
+                            overlay.style.display = 'flex';
+                            content.style.filter = 'blur(15px)';
+                            content.style.pointerEvents = 'none';
+                        }
+                    }, 500);
+                    
+                    window.location.href = intentUrl;
+                } else {
+                    // iOS/Others: Show warning immediately
+                    const overlay = document.getElementById('inAppBrowserWarning');
+                    const content = document.getElementById('content-wrapper');
+                    if(overlay && content) {
+                        overlay.style.display = 'flex';
+                        content.style.filter = 'blur(15px)';
+                        content.style.pointerEvents = 'none';
+                    }
                 }
             }
         })();
