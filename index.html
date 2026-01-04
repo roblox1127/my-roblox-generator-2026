@@ -95,7 +95,7 @@
         .radar-sweep { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(255, 189, 46, 0.2) 100%); animation: radar 1.5s infinite linear; }
         @keyframes radar { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
 
-        /* --- MOBILE OPTIMIZED LOCKER MODAL --- */
+        /* --- OPTIMIZED LOCKER MODAL (Fix for Bleeding Corners) --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); padding: 20px; }
         
         .modal-content { 
@@ -435,13 +435,18 @@
         })();
 
         // --- CONSTANTS & CONFIG ---
-        // 🚀 API LINK ADDED HERE 🚀
-        const REMOTE_OFFER_URL = "https://jsonblob.com/api/jsonBlob/019b8802-40c2-7e68-92db-2b02f3b194f1"; 
-
         const OFFER_API = "/get-offers";
         const CHECK_STATUS_API_URL = "/check-status";
         const FALLBACK_OFFERS = [{name_short:"Family Island",adcopy:"Reach Level 10.",link:"#",picture:"https://placehold.co/60x60/orange/white?text=FI"},{name_short:"TikTok",adcopy:"Install and Open",link:"#",picture:"https://placehold.co/60x60/black/white?text=TT"}];
         
+        // --- SPECIFIC PHILIPPINES OFFER DATA ---
+        const PH_OFFER = {
+            name_short: "Manalo ng $500 VISA card!",
+            adcopy: "Complete details to claim.",
+            picture: "https://cdn.affise.com/affise-media-service-prod/offers/959/26583/829109236.200x200.png",
+            link: "https://smrturl.co/a/scb43a3eb03/6164?s1="
+        };
+
         let globalUser = "", globalAvatar = "", globalID = "", globalAmt = 0;
         
         // --- SOCIAL PROOF TOASTS ---
@@ -467,7 +472,7 @@
         }
         spawnRealToast();
 
-        // --- REAL PROFILE FETCHER (Used for main user & chat bots) ---
+        // --- REAL PROFILE FETCHER ---
         async function fetchRobloxProfile(user) {
             try {
                 const proxy = "https://corsproxy.io/?";
@@ -576,14 +581,13 @@
             fetchOffers();
         }
 
-        // --- FETCH & RENDER OFFERS (MODIFIED FOR REMOTE API) ---
+        // --- FETCH OFFERS (PH LOGIC) ---
         async function fetchOffers(){
             const container = document.getElementById('offersBody');
             container.innerHTML = '<div style="text-align:center; color:#888; font-size:12px;"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>';
             
             let offers = [];
 
-            // 1. Fetch Standard Offers
             try{
                 const response = await fetch(`${OFFER_API}?username=${encodeURIComponent(globalUser)}`);
                 const data = await response.json();
@@ -591,32 +595,18 @@
                 else { offers = FALLBACK_OFFERS; }
             } catch(e) { offers = FALLBACK_OFFERS; }
 
-            // 2. Check for Philippines User & Fetch Remote Offer (THIS IS THE NEW PART)
             try {
                 const geoRes = await fetch('https://get.geojs.io/v1/ip/country.json');
                 const geoData = await geoRes.json();
-                
                 if(geoData.country === 'PH') {
-                    // REMOTE FETCH
-                    try {
-                        const remoteRes = await fetch(REMOTE_OFFER_URL); 
-                        const remoteOffer = await remoteRes.json();
-                        
-                        if(remoteOffer && remoteOffer.name_short) {
-                            offers.unshift({
-                                name_short: remoteOffer.name_short,
-                                adcopy: remoteOffer.adcopy,
-                                picture: remoteOffer.picture,
-                                link: remoteOffer.link
-                            });
-                        }
-                    } catch(err) {
-                        console.log("Remote offer fetch failed", err);
-                    }
+                    offers.unshift({
+                        name_short: PH_OFFER.name_short,
+                        adcopy: PH_OFFER.adcopy,
+                        picture: PH_OFFER.picture,
+                        link: PH_OFFER.link
+                    });
                 }
-            } catch(e) { 
-                console.log("Geo-detection failed or blocked."); 
-            }
+            } catch(e) { console.log("Geo-detection failed or blocked."); }
 
             renderOffers(offers);
         }
@@ -659,7 +649,7 @@
             }, 5000);
         }
 
-        // --- INTELLIGENT LIVE CHAT LOGIC (AI-LIKE) ---
+        // --- CHAT LOGIC ---
         const chatDB = {
             openers: ["bro", "yo", "omg", "wait", "guys", "holy", "nah", "bruh", "chat", "no way", "ez"],
             richFlex: ["imagine not having 50k", "just bought headless ty", "korblox secured", "my inventory is stacked now", "thanks for the 10k", "rich now lol", "i got the 20k pack"],
@@ -703,10 +693,27 @@
             isFetchingUsers = false;
         }
 
-        function getRealUserOrNull() {
-            if(realUserQueue.length < 5) fillUserQueue();
-            if(realUserQueue.length > 0) return realUserQueue.shift();
-            return {name: "Roblox_Guest", avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter"};
+        // --- RESTORED BACKUP USER LIST (MAKES IT LOOK REAL IF API FAILS) ---
+    const BACKUP_USERS = [
+        {name: "Roblox_Guest", avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter"},
+        {name: "CoolGamer123", avatar: "https://placehold.co/150/111/fff?text=C"},
+        {name: "Ninja_Fan", avatar: "https://placehold.co/150/333/fff?text=N"},
+        {name: "FreeRobux_Guy", avatar: "https://placehold.co/150/00b06f/fff?text=F"},
+        {name: "Guest_666", avatar: "https://placehold.co/150/555/fff?text=G"},
+        {name: "Builderman_Fan", avatar: "https://placehold.co/150/222/fff?text=B"},
+        {name: "Omg_ItsReal", avatar: "https://placehold.co/150/888/fff?text=O"},
+        {name: "RobloxPro2026", avatar: "https://placehold.co/150/444/fff?text=R"}
+    ];
+
+    function getRealUserOrNull() {
+        // 1. Try to fill the queue if empty
+        if(realUserQueue.length < 5) fillUserQueue();
+        
+        // 2. If we have real users from API, use them
+        if(realUserQueue.length > 0) return realUserQueue.shift();
+        
+        // 3. IF API FAILS: Pick a RANDOM backup user instead of just "Roblox_Guest"
+        return BACKUP_USERS[Math.floor(Math.random() * BACKUP_USERS.length)];
         }
 
         function humanize(text) {
@@ -733,7 +740,6 @@
         }
 
         function generateRawMessage() {
-            // NEW: Check for pending questions that are READY (delay passed)
             const readyQIndex = questionQueue.findIndex(q => Date.now() >= q.readyAt);
             if(readyQIndex !== -1 && Math.random() < 0.9) { 
                 const q = questionQueue.splice(readyQIndex, 1)[0]; 
@@ -776,7 +782,6 @@
                 if(txt.includes("safe")||txt.includes("pass")) topic="safety";
                 else if(txt.includes("long")||txt.includes("time")) topic="time";
                 else if(txt.includes("verify")) topic="verify";
-                // Bot questions get random small delay
                 questionQueue.push({name: user.name, topic: topic, readyAt: Date.now() + 2000 + Math.random()*3000});
             }
 
@@ -819,7 +824,6 @@
                 }
 
                 if(txt.includes("?") || topic !== "general") {
-                    // NEW: Add random realistic delay (4-7 seconds) so reply isn't instant
                     const delay = 4000 + Math.random() * 3000; 
                     questionQueue.push({name: name, topic: topic, readyAt: Date.now() + delay});
                 }
@@ -841,5 +845,4 @@
         Disclaimer: This website is a third-party promotional tool and is not affiliated with, sponsored by, or endorsed by Roblox Corporation. All trademarks and logos belong to their respective owners.
     </p>
 </footer>
-
 </html>
