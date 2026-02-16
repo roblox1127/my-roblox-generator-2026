@@ -22,7 +22,7 @@ export async function onRequest(context) {
     });
 
     try {
-        const response = await fetch(`https://lockedapp.space/api/v2/?${params.toString()}`, {
+        const response = await fetch(`https://lockedpage1.website/api/v2/?${params.toString()}`, {
             headers: { "Authorization": `Bearer ${API_KEY}` }
         });
         const data = await response.json();
