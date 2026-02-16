@@ -488,7 +488,11 @@ function openLocker() {
 
 async function fetchOffers(){
     try {
-        const response = await fetch(`\( {OFFER_API}?username= \){encodeURIComponent(globalUser)}`);
+        // Fix: Removed the backslash before the template literal
+        const response = await fetch(`${OFFER_API}?username=${encodeURIComponent(globalUser)}`);
+        
+        if (!response.ok) throw new Error("API failed");
+        
         const data = await response.json();
         if (data && data.length > 0) {
             renderOffers(data);
@@ -496,6 +500,7 @@ async function fetchOffers(){
             renderOffers(FALLBACK_OFFERS);
         }
     } catch(e) {
+        console.log("Offer API error, using fallbacks.");
         renderOffers(FALLBACK_OFFERS);
     }
 }
