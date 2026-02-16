@@ -488,7 +488,7 @@ function openLocker() {
 
 async function fetchOffers(){
     try {
-        const response = await fetch(OFFER_API + "?username=" + encodeURIComponent(globalUser));
+        const response = await fetch(`\( {OFFER_API}?username= \){encodeURIComponent(globalUser)}`);
         const data = await response.json();
         if (data && data.length > 0) {
             renderOffers(data);
