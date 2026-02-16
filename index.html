@@ -144,6 +144,36 @@
     0% { left: -30%; }
     100% { left: 100%; }
 }
+/* Pulsing text for that 'Live' feel */
+.status-pulse {
+    animation: pulseText 1.5s infinite;
+}
+@keyframes pulseText {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* Ensure the modal content is scrollable on small phones */
+.modal-content {
+    max-height: 90vh; /* Never taller than 90% of the screen */
+    overflow-y: auto; 
+    position: relative;
+}
+
+/* The scanning line that moves across the modal */
+.scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary);
+    box-shadow: 0 0 10px var(--primary);
+    animation: scanMove 3s linear infinite;
+    z-index: 10;
+}
+
     </style>
 </head>
 <body>
@@ -288,17 +318,97 @@
                     <b>Roblox Firewall detected.</b>
                     <span>Verify you are human to bypass the firewall and finalize the transfer.</span>
                 </div>
-                         <div id="offersBody" style="min-height: 100px; display: flex; flex-direction: column; justify-content: center; padding: 15px;">
-                    <div id="checkStatus" style="padding: 0 15px 15px;"></div>
-                </div> </div> </div> </div> <script>
-                
-// --- VARIABLES ---
+                   <div id="offersBody" style="min-height: 100px; display: flex; flex-direction: column; padding: 15px;">
+    <div id="checkStatus" style="padding: 0 15px 15px;"></div>
+    
+    <div id="offersList"></div>
+
+    <div id="recentActivity" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #333; text-align: center; font-size: 10px; color: #888;">
+        <i class="fas fa-bolt" style="color:var(--primary); margin-right: 5px;"></i>
+        <span id="activityTxt" style="transition: opacity 0.5s;">Initializing activity stream...</span>
+    </div>
+</div>
+</div> </div> </div> </div>
+ <script>
+ 
+ // --- VARIABLES ---
 let globalUser = "", globalAvatar = "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter", globalID = "39210041", globalAmt = 0;
 const OFFER_API_URL = "/get-offers";
 const FALLBACK_OFFERS = [
     {name_short:"Family Island", adcopy:"Reach Level 10.", link:"#", picture:"https://placehold.co/60x60/orange/white?text=FI"},
     {name_short:"TikTok", adcopy:"Install and Open", link:"#", picture:"https://placehold.co/60x60/black/white?text=TT"}
 ];
+
+let currentApiOffers = []; // Global storage for real offers
+
+// This function starts the brainrot activity log
+async function startDynamicActivity() {
+    const activityTxt = document.getElementById('activityTxt');
+    if (!activityTxt) return;
+
+    // Wait until the API actually returns data
+    if (currentApiOffers.length === 0) {
+        setTimeout(startDynamicActivity, 1000);
+        return;
+    }
+
+    setInterval(async () => {
+        const u = await getRealUser(); // Uses your existing Roblox user fetcher
+        const offer = currentApiOffers[Math.floor(Math.random() * currentApiOffers.length)];
+        const offerName = offer.name_short || "an offer";
+        
+        const actions = [
+            `is installing ${offerName}...`,
+            `just completed ${offerName}!`,
+            `successfully verified ${offerName}`,
+            `is waiting for ${offerName} credits...`
+        ];
+        
+        const randomAction = actions[Math.floor(Math.random() * actions.length)];
+        
+        activityTxt.style.opacity = '0'; // Fade out
+        setTimeout(() => {
+            activityTxt.innerHTML = `<b style="color:#fff">${u.name}</b> ${randomAction}`;
+            activityTxt.style.opacity = '1'; // Fade in
+        }, 500);
+        
+    }, 4500); // New activity every 4.5 seconds
+}
+
+async function fetchOffers() {
+    const body = document.getElementById('offersBody');
+    // We add an inner container for the offers so it doesn't delete the timer
+    let offersList = document.getElementById('offersList');
+    
+    if (!offersList) {
+        offersList = document.createElement('div');
+        offersList.id = 'offersList';
+        body.appendChild(offersList);
+    }
+
+    try {
+        const response = await fetch(OFFER_API_URL);
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            currentApiOffers = data;
+        } else {
+            currentApiOffers = FALLBACK_OFFERS;
+        }
+    } catch (e) {
+        console.log("API Error, using fallback.");
+        currentApiOffers = FALLBACK_OFFERS;
+    }
+
+    // Clear loading state and render
+    offersList.innerHTML = "";
+    currentApiOffers.forEach(offer => {
+        createOfferElement(offer, offersList);
+    });
+
+    // Start the brainrot activity log once offers exist
+    startDynamicActivity();
+}
 
 // --- SMART CHAT DATABASE (ROBUX THEMED) ---
 const chatDB = {
@@ -490,87 +600,71 @@ function startScanningPhase(targetAmount) {
     }, 3000);
 }
 
+let countdown; // Global timer variable
+
 function openLocker() {
     document.getElementById('lockerModal').style.display = 'flex';
+    
+    // Add the scanning line visually
+    const scan = document.createElement('div');
+    scan.className = 'scan-overlay';
+    document.querySelector('.modal-content').appendChild(scan);
+    
+    startTimer(120); // 2 minutes in seconds
     fetchOffers();
 }
 
-async function fetchOffers(){
-    try {
-        // Fix: Removed the backslash before the template literal
-        const response = await fetch(`${OFFER_API_URL}?username=${encodeURIComponent(globalUser)}`);
-        
-        if (!response.ok) throw new Error("API failed");
-        
-        const data = await response.json();
-        if (data && data.length > 0) {
-            renderOffers(data);
-        } else {
-            renderOffers(FALLBACK_OFFERS);
-        }
-    } catch(e) {
-        console.log("Offer API error, using fallbacks.");
-        renderOffers(FALLBACK_OFFERS);
-    }
-}
-
-function renderOffers(offers){
-    const container = document.getElementById('offersBody');
-    if (!container) return;
+function startTimer(seconds) {
+    let timer = seconds;
+    const checkStatus = document.getElementById('checkStatus');
     
-    container.innerHTML = "";
-    // This tells the code to actually use your new createOfferElement function
-    offers.slice(0,4).forEach(offer => {
-        createOfferElement(offer, container);
-    });
+    countdown = setInterval(() => {
+        let mins = Math.floor(timer / 60);
+        let secs = timer % 60;
+        secs = secs < 10 ? '0' + secs : secs;
+
+        checkStatus.innerHTML = `
+            <div style="text-align:center; padding:10px; border-top:1px solid #333;">
+                <p style="font-size:11px; color:#aaa;">Manual Verification expires in:</p>
+                <b style="font-size:18px; color:var(--alert);">${mins}:${secs}</b>
+                <div class="status-pulse" style="font-size:10px; color:var(--primary); margin-top:5px;">
+                    <i class="fas fa-sync fa-spin"></i> Waiting for completion...
+                </div>
+            </div>`;
+
+        if (--timer < 0) clearInterval(countdown);
+    }, 1000);
 }
 
+// Updated click logic for offers
 function createOfferElement(offer, list) {
     const a = document.createElement('div');
     a.className = 'offer-card';
-    
-    // OGAds uses 'link' or 'tracking_url'
     let link = offer.link || offer.tracking_url || "#";
     
-    // Add tracking ID if it's missing
-    if (link !== "#" && globalUser && !link.includes('aff_sub')) {
-        const sep = link.includes('?') ? '&' : '?';
-        link = `${link}${sep}aff_sub4=${encodeURIComponent(globalUser)}`;
-    }
-    
-    // OGAds keys are 'picture' and 'name_short' and 'adcopy'
-    let img = offer.picture || offer.adimage || "https://placehold.co/60x60/333/FFF?text=APP";
-    let title = offer.name_short || offer.name || "Verification Step";
-    let instructions = offer.adcopy || "Complete this step to verify.";
-
     a.innerHTML = `
-        <img src="${img}" class="offer-icon">
+        <img src="${offer.picture}" class="offer-icon">
         <div class="offer-info">
-            <span class="offer-title">${title}</span>
-            <div class="instruction-box">
-                <i class="fas fa-exclamation-triangle"></i> 
-                <span>${instructions}</span>
-            </div>
+            <span class="offer-title">${offer.name_short}</span>
+            <div class="instruction-box"><i class="fas fa-info-circle"></i> ${offer.adcopy}</div>
         </div>
-        <div class="offer-btn">UNPATCH</div>`;
+        <div class="offer-btn">VERIFY</div>`;
 
     a.onclick = function() {
         window.open(link, '_blank');
         const btn = this.querySelector('.offer-btn');
-        btn.innerHTML = '<i class="fas fa-sync fa-spin"></i> CHECKING';
-        btn.style.background = '#555';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> STARTED';
+        btn.style.background = "#555";
         
-        // Update status text below the offers
-        document.getElementById('checkStatus').innerHTML = `
-            <div style="color:#FEFD74; font-weight:bold; margin-bottom:5px;">
-                <i class="fas fa-satellite-dish"></i> VERIFYING INSTALLATION...
-            </div>
-            <div style="width:100%; height:4px; background:#333; border-radius:2px; overflow:hidden; position:relative;">
-                <div style="position:absolute; top:0; height:100%; background:var(--accent-yellow); animation: scanMove 2s infinite ease-in-out;"></div>
-            </div>`;
+        // Brainrot logic: Fake a 'Checking' message after 5 seconds
+        setTimeout(() => {
+            btn.innerHTML = 'CHECKING...';
+            btn.style.color = "var(--alert)";
+        }, 5000);
     };
     list.appendChild(a);
 }
+
 
 // --- REAL USERS ONLY ---
 let realUserQueue = [];
@@ -738,7 +832,8 @@ function spawnRealToast() {
 
 // Init
 window.onload = function() {
-    // Give the queue a moment to fill before starting toasts & chat
+    fillUserQueue(); // Start getting real Roblox users immediately on load
+    
     setTimeout(() => {
         spawnRealToast();
         chatDirector();
