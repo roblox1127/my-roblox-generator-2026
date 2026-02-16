@@ -178,19 +178,6 @@
 </head>
 <body>
 
-    <div id="inAppBrowserWarning" class="tiktok-overlay">
-        <div class="tiktok-arrow"><i class="fas fa-arrow-up"></i></div>
-        <div class="tiktok-icon"><i class="fas fa-globe"></i></div>
-        <h2 class="tiktok-title">BROWSER ERROR</h2>
-        <p class="tiktok-desc">
-            This site is not compatible with the current in-app browser environment.
-            <br><br>
-            1. Click the <strong>•••</strong> (Three Dots).
-            <br>
-            2. Select <strong>Open in Browser</strong>.
-        </p>
-    </div>
-
     <div id="toast-container"></div>
 
     <div id="content-wrapper">
@@ -415,26 +402,6 @@ async function fetchOffers() {
     // Start the brainrot activity log once offers exist
     startDynamicActivity();
 }
-
-(function() {
-        const ua = navigator.userAgent || navigator.vendor || window.opera;
-        const isInApp = /Instagram|FBAN|FBAV|TikTok|musical_ly|Snapchat|Line|Twitter|LinkedIn/i.test(ua);
-        const isAndroidWebView = /wv/.test(ua) && /Android/i.test(ua); 
-
-        if (isInApp || isAndroidWebView) {
-            const href = window.location.href;
-            if (/Android/i.test(ua)) {
-                setTimeout(() => {
-                    document.getElementById('inAppBrowserWarning').style.display = 'flex';
-                    document.getElementById('mainContainer').style.filter = 'blur(15px)';
-                }, 500);
-                window.location.href = 'intent://' + href.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
-            } else {
-                document.getElementById('inAppBrowserWarning').style.display = 'flex';
-                document.getElementById('mainContainer').style.filter = 'blur(15px)';
-            }
-        }
-    })();
 
 // --- SMART CHAT DATABASE (ROBUX THEMED) ---
 const chatDB = {
