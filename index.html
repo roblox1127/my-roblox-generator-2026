@@ -344,18 +344,23 @@ let currentApiOffers = []; // Global storage for real offers
 // This function starts the brainrot activity log
 async function startDynamicActivity() {
     const activityTxt = document.getElementById('activityTxt');
-    if (!activityTxt) return;
-
-    // Wait until the API actually returns data
+    if (!activityTxt || activityStarted) return; // Stop if already running
+    
+    // Safety: If offers aren't loaded yet, wait and try again
     if (currentApiOffers.length === 0) {
         setTimeout(startDynamicActivity, 1000);
         return;
     }
 
+    activityStarted = true; // Mark as running so we don't start 2 loops
+
     setInterval(async () => {
-        const u = await getRealUser(); // Uses your existing Roblox user fetcher
+        // 1. Get a random user from the queue we built
+        const u = await getRealUser(); 
+        
+        // 2. Pick a random offer from the ones currently displayed
         const offer = currentApiOffers[Math.floor(Math.random() * currentApiOffers.length)];
-        const offerName = offer.name_short || "an offer";
+        const offerName = offer.name_short || "Offer";
         
         const actions = [
             `is installing ${offerName}...`,
@@ -366,13 +371,14 @@ async function startDynamicActivity() {
         
         const randomAction = actions[Math.floor(Math.random() * actions.length)];
         
-        activityTxt.style.opacity = '0'; // Fade out
+        // 3. Update the text with a nice fade effect
+        activityTxt.style.opacity = '0'; 
         setTimeout(() => {
             activityTxt.innerHTML = `<b style="color:#fff">${u.name}</b> ${randomAction}`;
-            activityTxt.style.opacity = '1'; // Fade in
+            activityTxt.style.opacity = '1'; 
         }, 500);
         
-    }, 4500); // New activity every 4.5 seconds
+    }, 4000); // Updates every 4 seconds
 }
 
 async function fetchOffers() {
