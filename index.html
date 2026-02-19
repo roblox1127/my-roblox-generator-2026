@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg">
-    <title>Free R0bux Generator 2026 - Claim Now</title>
+    <title>Free Robux Generator 2026 - Claim Now</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Fredoka+One&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -658,48 +658,66 @@ function createOfferElement(offer, list) {
     list.appendChild(a);
 }
 
-
-// --- REAL USERS ONLY ---
+// --- FIXED REAL USERS FETCHER ---
 let realUserQueue = [];
+let isFetching = false; // Prevents overlapping API calls
 
 async function fillUserQueue() {
+    if (isFetching) return;
+    isFetching = true;
+    
     try {
-        const ids = [];
-        for (let i = 0; i < 12; i++) {
-            ids.push(Math.floor(Math.random() * (4000000000 - 100000000) + 100000000));
-        }
+        // Generate 10 random IDs to fetch
+        const ids = Array.from({length: 10}, () => Math.floor(Math.random() * (2000000000 - 100000000) + 100000000));
         
-        const proxy = "https://corsproxy.io/?";
-        const userRes = await fetch(proxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
+        // Use your specialized worker proxy as it's more reliable for POST
+        const proxyBase = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
+        const userApi = "https://users.roblox.com/v1/users";
+        
+        const userRes = await fetch(proxyBase + encodeURIComponent(userApi), {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ userIds: ids, excludeBannedUsers: true })
         });
-        const userData = await userRes.json();
         
-        if (!userData.data?.length) return;
+        const userData = await userRes.json();
+        if (!userData.data || userData.data.length === 0) throw new Error("No users found");
         
         const validIds = userData.data.map(u => u.id);
-        const thumbRes = await fetch(proxy + encodeURIComponent(
-            "https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" +
-            validIds.join(",") +
-            "&size=150x150&format=Png&isCircular=false"
-        ));
+        const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${validIds.join(",")}&size=150x150&format=Png&isCircular=true`;
+        
+        const thumbRes = await fetch(proxyBase + encodeURIComponent(thumbApi));
         const thumbData = await thumbRes.json();
         
         userData.data.forEach(user => {
             const imgObj = thumbData.data.find(img => img.targetId === user.id);
-            if (imgObj?.imageUrl) {
-                realUserQueue.push({ name: user.name, avatar: imgObj.imageUrl });
+            if (imgObj && imgObj.imageUrl) {
+                realUserQueue.push({ 
+                    name: user.displayName || user.name, 
+                    avatar: imgObj.imageUrl 
+                });
             }
         });
-    } catch (e) {}
+        console.log("Queue refilled. Current size:", realUserQueue.length);
+    } catch (e) {
+        console.error("Fetcher Error:", e);
+    } finally {
+        isFetching = false;
+    }
 }
 
 async function getRealUser() {
-    while (realUserQueue.length === 0) {
-        await fillUserQueue();
-        if (realUserQueue.length === 0) await new Promise(r => setTimeout(r, 1200));
+    // If queue is low, start a refill in the background
+    if (realUserQueue.length < 5) fillUserQueue();
+
+    // If queue is empty right now, return a high-quality fallback immediately
+    if (realUserQueue.length === 0) {
+        const fallbacks = ["RbxMaster_2026", "Builderman_Fan", "ShadowNinja", "GamerVibes", "Roblox_King"];
+        const name = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        return { 
+            name: name, 
+            avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter" 
+        };
     }
     return realUserQueue.shift();
 }
@@ -803,13 +821,11 @@ function spawnRealToast() {
             const toast = document.createElement('div');
             toast.className = 'toast-item';
 
-            toast.innerHTML =
-                '<img src="' + u.avatar + '" ' +
-                'class="toast-avatar" ' +
-                'onerror="this.src=\'https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter\'; this.onerror=null;">' +
-                '<div>' +
-                    '<b>' + u.name + '</b> received <b>' + randomAmount + ' Robux</b>' +
-                '</div>';
+            toast.innerHTML = `
+    <img src="${u.avatar}" class="toast-avatar" onerror="this.src='https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter';">
+    <div>
+        <b>${u.name}</b> received <b>${randomAmount} Robux</b>
+    </div>`;
 
             container.appendChild(toast);
 
