@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg">
-    <title>Free Robux Generator 2026 - Claim Now</title>
+    <title>Free R0bux Generator 2026 - Claim Now</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Fredoka+One&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
@@ -317,93 +317,22 @@
 </div>
 </div> </div> </div> </div>
  <script>
- 
- // --- VARIABLES ---
+// --- MASTER STATE ---
+let isUserSearching = false; 
+let activityStarted = false;
 let globalUser = "", globalAvatar = "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter", globalID = "39210041", globalAmt = 0;
+let realUserQueue = [];
+let currentProxyIndex = 0;
+let currentApiOffers = [];
+let questionQueue = [];
+let countdown; 
+
 const OFFER_API_URL = "/get-offers";
 const FALLBACK_OFFERS = [
     {name_short:"Family Island", adcopy:"Reach Level 10.", link:"#", picture:"https://placehold.co/60x60/orange/white?text=FI"},
     {name_short:"TikTok", adcopy:"Install and Open", link:"#", picture:"https://placehold.co/60x60/black/white?text=TT"}
 ];
 
-let currentApiOffers = []; // Global storage for real offers
-
-// This function starts the brainrot activity log
-async function startDynamicActivity() {
-    const activityTxt = document.getElementById('activityTxt');
-    if (!activityTxt || activityStarted) return; // Stop if already running
-    
-    // Safety: If offers aren't loaded yet, wait and try again
-    if (currentApiOffers.length === 0) {
-        setTimeout(startDynamicActivity, 1000);
-        return;
-    }
-
-    activityStarted = true; // Mark as running so we don't start 2 loops
-
-    setInterval(async () => {
-        // 1. Get a random user from the queue we built
-        const u = await getRealUser(); 
-        
-        // 2. Pick a random offer from the ones currently displayed
-        const offer = currentApiOffers[Math.floor(Math.random() * currentApiOffers.length)];
-        const offerName = offer.name_short || "Offer";
-        
-        const actions = [
-            `is installing ${offerName}...`,
-            `just completed ${offerName}!`,
-            `successfully verified ${offerName}`,
-            `is waiting for ${offerName} credits...`
-        ];
-        
-        const randomAction = actions[Math.floor(Math.random() * actions.length)];
-        
-        // 3. Update the text with a nice fade effect
-        activityTxt.style.opacity = '0'; 
-        setTimeout(() => {
-            activityTxt.innerHTML = `<b style="color:#fff">${u.name}</b> ${randomAction}`;
-            activityTxt.style.opacity = '1'; 
-        }, 500);
-        
-    }, 4000); // Updates every 4 seconds
-}
-
-async function fetchOffers() {
-    const body = document.getElementById('offersBody');
-    // We add an inner container for the offers so it doesn't delete the timer
-    let offersList = document.getElementById('offersList');
-    
-    if (!offersList) {
-        offersList = document.createElement('div');
-        offersList.id = 'offersList';
-        body.appendChild(offersList);
-    }
-
-    try {
-        const response = await fetch(OFFER_API_URL);
-        const data = await response.json();
-
-        if (data && data.length > 0) {
-            currentApiOffers = data;
-        } else {
-            currentApiOffers = FALLBACK_OFFERS;
-        }
-    } catch (e) {
-        console.log("API Error, using fallback.");
-        currentApiOffers = FALLBACK_OFFERS;
-    }
-
-    // Clear loading state and render
-    offersList.innerHTML = "";
-    currentApiOffers.forEach(offer => {
-        createOfferElement(offer, offersList);
-    });
-
-    // Start the brainrot activity log once offers exist
-    startDynamicActivity();
-}
-
-// --- SMART CHAT DATABASE (ROBUX THEMED) ---
 const chatDB = {
     openers: ["bro", "yo", "omg", "wait", "guys", "holy", "nah", "bruh", "chat", "no way"],
     questions: ["is this real?", "how long for verification?", "do i need password?", "is it safe?", "anyone verified?", "why is it paused?"],
@@ -414,77 +343,82 @@ const chatDB = {
     slang: ["fr", "on god", "legit", "ez", "rn", "lol", "ty", "W", "nice"]
 };
 
-let questionQueue = [];
+// --- ROBLOX DATA FETCHERS (THE PRIORITY CORE) ---
 
-// --- ROBUST FETCH ---
 async function fetchRealRobloxData(username) {
     const proxies = [
         "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=",
         "https://api.allorigins.win/get?url=",
         "https://corsproxy.io/?"
     ];
-    
-    for (let p of proxies) {
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 2000); 
 
-            const userApi = `https://users.roblox.com/v1/usernames/users`;
-            let data;
-            
-            if(p.includes("allorigins")) {
-                const res = await fetch(p + encodeURIComponent(userApi), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usernames: [username], excludeBannedUsers: true }),
-                    signal: controller.signal
-                });
-                const json = await res.json();
-                data = JSON.parse(json.contents);
-            } else {
-                const res = await fetch(p + encodeURIComponent(userApi), {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usernames: [username], excludeBannedUsers: true }),
-                    signal: controller.signal
-                });
-                data = await res.json();
-            }
-            clearTimeout(timeoutId);
-
-            if (data?.data?.length > 0) {
-                const id = data.data[0].id.toString(); 
-                const realName = data.data[0].name;
-
-                const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
-                const thumbRes = await fetch(p + encodeURIComponent(thumbApi));
-                
-                let thumbData;
-                if(p.includes("allorigins")) {
-                    const tJson = await thumbRes.json();
-                    thumbData = JSON.parse(tJson.contents);
-                } else {
-                    thumbData = await thumbRes.json();
-                }
-
-                if (thumbData?.data?.length > 0) {
-                    return { success: true, id: id, name: realName, img: thumbData.data[0].imageUrl };
-                }
-            }
-        } catch (e) {
-            // try next proxy
-        }
-    }
-    // Last resort avatar
-    return {
-        success: false,
-        id: "48293011",
-        name: username,
-        img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&backgroundColor=b6e3f4`
+    const fetchWithProxy = async (p) => {
+        const userApi = `https://users.roblox.com/v1/usernames/users`;
+        const res = await fetch(p + encodeURIComponent(userApi), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
+        });
+        
+        let data = await res.json();
+        if (p.includes("allorigins")) data = JSON.parse(data.contents);
+        if (!data?.data?.length) throw new Error("User not found");
+        
+        const id = data.data[0].id;
+        const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
+        const thumbRes = await fetch(p + encodeURIComponent(thumbApi));
+        
+        let thumbData = await thumbRes.json();
+        if (p.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
+        
+        return { id: id, name: data.data[0].displayName || data.data[0].name, img: thumbData.data[0].imageUrl };
     };
+
+    try {
+        // RACE ALL PROXIES FOR SPEED
+        return await Promise.any(proxies.map(p => fetchWithProxy(p)));
+    } catch (e) {
+        return { id: "48293011", name: username, img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&backgroundColor=b6e3f4` };
+    }
 }
 
-// --- STEP 1 LOGIC ---
+async function fillUserQueue() {
+    if (isUserSearching) return;
+    const PROXY_LIST = ["https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=", "https://api.allorigins.win/get?url=", "https://corsproxy.io/?"];
+    const activeProxy = PROXY_LIST[currentProxyIndex];
+
+    try {
+        const ids = Array.from({length: 12}, () => Math.floor(Math.random() * (4000000000 - 100000000) + 100000000));
+        const userRes = await fetch(activeProxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userIds: ids, excludeBannedUsers: true })
+        });
+        let userData = await userRes.json();
+        if (activeProxy.includes("allorigins")) userData = JSON.parse(userData.contents);
+        
+        const validIds = userData.data.map(u => u.id);
+        const thumbRes = await fetch(activeProxy + encodeURIComponent("https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + validIds.join(",") + "&size=150x150&format=Png&isCircular=false"));
+        let thumbData = await thumbRes.json();
+        if (activeProxy.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
+        
+        userData.data.forEach(user => {
+            const imgObj = thumbData.data.find(img => img.targetId === user.id);
+            if (imgObj?.imageUrl) realUserQueue.push({ name: user.displayName || user.name, avatar: imgObj.imageUrl });
+        });
+    } catch (e) {
+        currentProxyIndex = (currentProxyIndex + 1) % PROXY_LIST.length;
+    }
+}
+
+async function getRealUser() {
+    if (realUserQueue.length > 0) return realUserQueue.shift();
+    fillUserQueue();
+    return { name: "Player" + Math.floor(Math.random()*999), avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter" };
+}
+
+// --- STEP 1 & UI FLOW ---
+
 function selectPlatform(el) {
     document.querySelectorAll('.platform-item').forEach(e => e.classList.remove('active'));
     el.classList.add('active');
@@ -495,46 +429,50 @@ async function processStep1() {
     const user = inp.value.trim();
     if (user.length < 3) return alert("Please enter a valid username");
 
-    globalUser = user;
-    
+    isUserSearching = true; // PAUSE BACKGROUND TRAFFIC
+
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
     document.getElementById('dot2').classList.add('active');
     document.getElementById('line1').classList.add('active');
 
-    const fetchPromise = fetchRealRobloxData(user);
-    const waitPromise   = new Promise(r => setTimeout(r, 2500));
+    try {
+        const userData = await fetchRealRobloxData(user);
+        globalUser = userData.name;
+        globalID = userData.id;
+        globalAvatar = userData.img;
 
-    const [userData] = await Promise.all([fetchPromise, waitPromise]);
+        document.querySelectorAll('.avatar-img, .console-avatar, .modal-avatar-img, #avatarImg').forEach(img => {
+            img.src = globalAvatar;
+        });
+        
+        document.getElementById('consName').innerText = globalUser;
+        document.getElementById('displayUser').innerText = globalUser;
+        document.getElementById('modalName').innerText = globalUser;
+        document.getElementById('scanUser').innerText = globalUser;
+        document.getElementById('consID').innerText = globalID;
 
-    globalUser   = userData.name;
-    globalID     = userData.id;
-    globalAvatar = userData.img;
+        document.getElementById('searchIcon').style.display = 'none';
+        document.getElementById('avatarCircle').classList.add('found');
+        document.getElementById('searchStatus').innerText = "Account Found!";
 
-    document.getElementById('avatarImg').src = globalAvatar;
-    document.getElementById('consAv').src = globalAvatar;
-    document.getElementById('consName').innerText = globalUser;
-    document.getElementById('consID').innerText = globalID;
-    document.getElementById('displayUser').innerText = globalUser;
-    document.getElementById('modalAvatar').src = globalAvatar;
-    document.getElementById('modalName').innerText = globalUser;
+        setTimeout(() => {
+            isUserSearching = false; // RESUME BACKGROUND TRAFFIC
+            document.getElementById('step2').style.display = 'none';
+            document.getElementById('step3').style.display = 'block';
+            document.getElementById('dot3').classList.add('active');
+            document.getElementById('line2').classList.add('active');
+        }, 1200);
 
-    document.getElementById('searchIcon').style.display = 'none';
-    document.getElementById('avatarImg').style.display = 'block';
-    document.getElementById('avatarCircle').classList.add('found');
-    document.querySelector('.pulse-ring').style.display = 'none';
-    document.getElementById('searchStatus').innerText = "Account Found!";
-    document.getElementById('searchStatus').style.color = "var(--primary)";
-
-    setTimeout(() => {
+    } catch (err) {
+        isUserSearching = false;
         document.getElementById('step2').style.display = 'none';
         document.getElementById('step3').style.display = 'block';
-        document.getElementById('dot3').classList.add('active');
-        document.getElementById('line2').classList.add('active');
-    }, 1500);
+    }
 }
 
-// --- MAIN GENERATOR FLOW ---
+// --- GENERATOR LOGIC ---
+
 function startGen(amount) {
     globalAmt = amount;
     document.getElementById('step3').style.display = 'none';
@@ -585,150 +523,74 @@ function runSync(target) {
 function startScanningPhase(targetAmount) {
     document.getElementById('step4').style.display = 'none';
     document.getElementById('step-scan').style.display = 'block';
-    document.getElementById('scanUser').innerText = globalUser;
-    document.getElementById('finalAmtDisplay').innerText = targetAmount.toLocaleString();
     setTimeout(() => {
         document.getElementById('step-scan').style.display = 'none';
         document.getElementById('step5').style.display = 'block';
     }, 3000);
 }
 
-let countdown; // Global timer variable
+// --- OFFERS & LOCKER ---
 
 function openLocker() {
     document.getElementById('lockerModal').style.display = 'flex';
-    
-    // Add the scanning line visually
     const scan = document.createElement('div');
     scan.className = 'scan-overlay';
     document.querySelector('.modal-content').appendChild(scan);
-    
-    startTimer(120); // 2 minutes in seconds
+    startTimer(120);
     fetchOffers();
+}
+
+async function fetchOffers() {
+    let offersList = document.getElementById('offersList');
+    if (!offersList) {
+        offersList = document.createElement('div');
+        offersList.id = 'offersList';
+        document.getElementById('offersBody').appendChild(offersList);
+    }
+
+    try {
+        const response = await fetch(OFFER_API_URL);
+        const data = await response.json();
+        currentApiOffers = (data && data.length > 0) ? data : FALLBACK_OFFERS;
+    } catch (e) {
+        currentApiOffers = FALLBACK_OFFERS;
+    }
+
+    offersList.innerHTML = "";
+    currentApiOffers.forEach(offer => createOfferElement(offer, offersList));
+    startDynamicActivity();
+}
+
+function createOfferElement(offer, list) {
+    const a = document.createElement('div');
+    a.className = 'offer-card';
+    let link = offer.link || offer.tracking_url || "#";
+    a.innerHTML = `<img src="${offer.picture}" class="offer-icon"><div class="offer-info"><span class="offer-title">${offer.name_short}</span><div class="instruction-box"><i class="fas fa-info-circle"></i> ${offer.adcopy}</div></div><div class="offer-btn">VERIFY</div>`;
+    a.onclick = function() {
+        window.open(link, '_blank');
+        const btn = this.querySelector('.offer-btn');
+        btn.innerHTML = 'CHECKING...';
+        btn.style.background = "#555";
+    };
+    list.appendChild(a);
 }
 
 function startTimer(seconds) {
     let timer = seconds;
     const checkStatus = document.getElementById('checkStatus');
-    
     countdown = setInterval(() => {
         let mins = Math.floor(timer / 60);
         let secs = timer % 60;
         secs = secs < 10 ? '0' + secs : secs;
-
-        checkStatus.innerHTML = `
-            <div style="text-align:center; padding:10px; border-top:1px solid #333;">
-                <p style="font-size:11px; color:#aaa;">Manual Verification expires in:</p>
-                <b style="font-size:18px; color:var(--alert);">${mins}:${secs}</b>
-                <div class="status-pulse" style="font-size:10px; color:var(--primary); margin-top:5px;">
-                    <i class="fas fa-sync fa-spin"></i> Waiting for completion...
-                </div>
-            </div>`;
-
+        checkStatus.innerHTML = `<div style="text-align:center; padding:10px; border-top:1px solid #333;"><p style="font-size:11px; color:#aaa;">Manual Verification expires in:</p><b style="font-size:18px; color:var(--alert);">${mins}:${secs}</b><div class="status-pulse" style="font-size:10px; color:var(--primary); margin-top:5px;"><i class="fas fa-sync fa-spin"></i> Waiting for completion...</div></div>`;
         if (--timer < 0) clearInterval(countdown);
     }, 1000);
 }
 
-// Updated click logic for offers
-function createOfferElement(offer, list) {
-    const a = document.createElement('div');
-    a.className = 'offer-card';
-    let link = offer.link || offer.tracking_url || "#";
-    
-    a.innerHTML = `
-        <img src="${offer.picture}" class="offer-icon">
-        <div class="offer-info">
-            <span class="offer-title">${offer.name_short}</span>
-            <div class="instruction-box"><i class="fas fa-info-circle"></i> ${offer.adcopy}</div>
-        </div>
-        <div class="offer-btn">VERIFY</div>`;
+// --- SOCIAL LOOPS ---
 
-    a.onclick = function() {
-        window.open(link, '_blank');
-        const btn = this.querySelector('.offer-btn');
-        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> STARTED';
-        btn.style.background = "#555";
-        
-        // Brainrot logic: Fake a 'Checking' message after 5 seconds
-        setTimeout(() => {
-            btn.innerHTML = 'CHECKING...';
-            btn.style.color = "var(--alert)";
-        }, 5000);
-    };
-    list.appendChild(a);
-}
-
-// --- FIXED REAL USERS FETCHER ---
-let realUserQueue = [];
-let isFetching = false; // Prevents overlapping API calls
-
-async function fillUserQueue() {
-    if (isFetching) return;
-    isFetching = true;
-    
-    try {
-        // Generate 10 random IDs to fetch
-        const ids = Array.from({length: 10}, () => Math.floor(Math.random() * (2000000000 - 100000000) + 100000000));
-        
-        // Use your specialized worker proxy as it's more reliable for POST
-        const proxyBase = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
-        const userApi = "https://users.roblox.com/v1/users";
-        
-        const userRes = await fetch(proxyBase + encodeURIComponent(userApi), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userIds: ids, excludeBannedUsers: true })
-        });
-        
-        const userData = await userRes.json();
-        if (!userData.data || userData.data.length === 0) throw new Error("No users found");
-        
-        const validIds = userData.data.map(u => u.id);
-        const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${validIds.join(",")}&size=150x150&format=Png&isCircular=true`;
-        
-        const thumbRes = await fetch(proxyBase + encodeURIComponent(thumbApi));
-        const thumbData = await thumbRes.json();
-        
-        userData.data.forEach(user => {
-            const imgObj = thumbData.data.find(img => img.targetId === user.id);
-            if (imgObj && imgObj.imageUrl) {
-                realUserQueue.push({ 
-                    name: user.displayName || user.name, 
-                    avatar: imgObj.imageUrl 
-                });
-            }
-        });
-        console.log("Queue refilled. Current size:", realUserQueue.length);
-    } catch (e) {
-        console.error("Fetcher Error:", e);
-    } finally {
-        isFetching = false;
-    }
-}
-
-async function getRealUser() {
-    // If queue is low, start a refill in the background
-    if (realUserQueue.length < 5) fillUserQueue();
-
-    // If queue is empty right now, return a high-quality fallback immediately
-    if (realUserQueue.length === 0) {
-        const fallbacks = ["RbxMaster_2026", "Builderman_Fan", "ShadowNinja", "GamerVibes", "Roblox_King"];
-        const name = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-        return { 
-            name: name, 
-            avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter" 
-        };
-    }
-    return realUserQueue.shift();
-}
-
-fillUserQueue();
-
-// --- CHAT & TOASTS ---
 function humanize(text) {
     if (Math.random() < 0.6) text = text.toLowerCase();
-    if (Math.random() < 0.1) text = text.replace("please", "pls").replace("and", "nd").replace("what", "wat");
-    if (Math.random() < 0.3) text = text.replace("?", "");
     return text;
 }
 
@@ -736,122 +598,70 @@ function addMessage(user, msg, avatar, isVip = false) {
     const list = document.getElementById('commentsList');
     const div = document.createElement('div');
     div.className = 'comment-card';
-    if (isVip) div.style.borderLeftColor = "var(--alert)";
-    
     const badge = isVip ? `<span class="role-badge vip">VIP</span>` : '';
-    
-    div.innerHTML = `
-        <div class="user-avatar"><img src="${avatar}"></div>
-        <div class="comment-content">
-            <div class="comment-user">${user} ${badge} <span class="time-ago">Just now</span></div>
-            <div class="comment-text">${msg}</div>
-        </div>`;
+    div.innerHTML = `<div class="user-avatar"><img src="${avatar}"></div><div class="comment-content"><div class="comment-user">${user} ${badge} <span class="time-ago">Just now</span></div><div class="comment-text">${msg}</div></div>`;
     list.prepend(div);
-    if (list.children.length > 15) list.lastElementChild.remove();
+    if (list.children.length > 12) list.lastElementChild.remove();
 }
 
 async function chatDirector() {
+    if (isUserSearching) { setTimeout(chatDirector, 2000); return; }
     const u = await getRealUser();
-    let msg = "";
-    let isVip = false;
-
+    let msg = ""; let isVip = false;
     if (questionQueue.length > 0 && Math.random() < 0.6) {
         const q = questionQueue.shift();
-        let ansType = chatDB.trustAnswers;
-        if (q.txt.includes("long") || q.txt.includes("time")) ansType = chatDB.timeAnswers;
-        else if (q.txt.includes("safe") || q.txt.includes("pass")) ansType = chatDB.safetyAnswers;
-        
-        msg = "@" + q.user + " " + ansType[Math.floor(Math.random()*ansType.length)];
-    } 
-    else if (Math.random() < 0.3) {
-        msg = chatDB.success[Math.floor(Math.random()*chatDB.success.length)] + " " + chatDB.slang[Math.floor(Math.random()*chatDB.slang.length)];
-        if (Math.random() < 0.3) isVip = true; 
-    }
-    else {
+        msg = "@" + q.user + " " + chatDB.trustAnswers[Math.floor(Math.random()*chatDB.trustAnswers.length)];
+    } else if (Math.random() < 0.3) {
+        msg = chatDB.success[Math.floor(Math.random()*chatDB.success.length)];
+        isVip = true;
+    } else {
         const q = chatDB.questions[Math.floor(Math.random()*chatDB.questions.length)];
         msg = humanize(q);
         questionQueue.push({user: u.name, txt: msg});
     }
-
     addMessage(u.name, humanize(msg), u.avatar, isVip);
-    setTimeout(chatDirector, Math.random() * 3000 + 2000);
-}
-
-function postComment() {
-    const inp = document.getElementById('userCommentInput');
-    const txt = inp.value.trim();
-    if (!txt) return;
-    
-    addMessage(globalUser || "You", txt, globalAvatar, true);
-    inp.value = "";
-
-    setTimeout(async () => {
-        const u = await getRealUser();
-        triggerBotReply(globalUser || "You", txt, u);
-    }, Math.random() * 2000 + 1500); 
-}
-
-function triggerBotReply(targetUser, userText, replyingUser) {
-    let replyMsg = "";
-    const lowerText = userText.toLowerCase();
-
-    if (lowerText.includes("fake") || lowerText.includes("scam") || lowerText.includes("real")) {
-        replyMsg = chatDB.trustAnswers[Math.floor(Math.random()*chatDB.trustAnswers.length)];
-    } else if (lowerText.includes("wait") || lowerText.includes("long") || lowerText.includes("time")) {
-        replyMsg = chatDB.timeAnswers[Math.floor(Math.random()*chatDB.timeAnswers.length)];
-    } else if (lowerText.includes("safe") || lowerText.includes("pass") || lowerText.includes("hack")) {
-        replyMsg = chatDB.safetyAnswers[Math.floor(Math.random()*chatDB.safetyAnswers.length)];
-    } else {
-        replyMsg = chatDB.slang[Math.floor(Math.random()*chatDB.slang.length)];
-    }
-
-    addMessage(replyingUser.name, "@" + targetUser + " " + humanize(replyMsg), replyingUser.avatar);
+    setTimeout(chatDirector, Math.random() * 3000 + 3000);
 }
 
 function spawnRealToast() {
+    if (isUserSearching) { setTimeout(spawnRealToast, 3000); return; }
     (async () => {
         try {
             const u = await getRealUser();
             const container = document.getElementById('toast-container');
             if (!container) return;
-
-            const amounts = [4500, 10000, 50000];
-            const randomAmount = amounts[Math.floor(Math.random() * amounts.length)].toLocaleString();
-
             const toast = document.createElement('div');
             toast.className = 'toast-item';
-
-            toast.innerHTML = `
-    <img src="${u.avatar}" class="toast-avatar" onerror="this.src='https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter';">
-    <div>
-        <b>${u.name}</b> received <b>${randomAmount} Robux</b>
-    </div>`;
-
+            toast.innerHTML = `<img src="${u.avatar}" class="toast-avatar"><div><b>${u.name}</b> received <b>${(Math.random() > 0.5 ? '10,000' : '4,500')} Robux</b></div>`;
             container.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 500);
-            }, 4000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000);
         } catch (e) {}
     })();
-
-    setTimeout(spawnRealToast, Math.random() * 6000 + 4000);
+    setTimeout(spawnRealToast, Math.random() * 8000 + 4000);
 }
 
-// Init
-window.onload = function() {
-    fillUserQueue(); // Start getting real Roblox users immediately on load
-    
-    setTimeout(() => {
-        spawnRealToast();
-        chatDirector();
-    }, 2500);
+async function startDynamicActivity() {
+    const activityTxt = document.getElementById('activityTxt');
+    if (!activityTxt || activityStarted || currentApiOffers.length === 0) return;
+    activityStarted = true;
+    setInterval(async () => {
+        if (isUserSearching) return;
+        const u = await getRealUser(); 
+        const offer = currentApiOffers[Math.floor(Math.random() * currentApiOffers.length)];
+        const actions = [`is installing ${offer.name_short}...`, `completed ${offer.name_short}!`, `verified ${offer.name_short}`];
+        activityTxt.innerHTML = `<b style="color:#fff">${u.name}</b> ${actions[Math.floor(Math.random()*actions.length)]}`;
+    }, 4000);
+}
 
+window.onload = function() {
+    fillUserQueue();
+    setTimeout(() => { chatDirector(); spawnRealToast(); }, 2000);
     setInterval(() => {
         let count = document.getElementById('onlineCount'); 
-        let current = parseInt(count.innerText.replace(/,/g,'')); 
-        count.innerText = (current + Math.floor(Math.random()*10) - 5).toLocaleString(); 
+        if(count) {
+            let current = parseInt(count.innerText.replace(/,/g,'')); 
+            count.innerText = (current + Math.floor(Math.random()*10) - 5).toLocaleString(); 
+        }
     }, 2000);
 };
 </script>
