@@ -507,49 +507,66 @@ function getUnique(arr) {
 
 // --- ROBLOX DATA FETCHERS ---
 async function fetchRealRobloxData(username) {
-    const proxies = [    "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=",
-    "https://corsproxy.io/?url=",
-    "https://api.allorigins.win/raw?url="];
-    for (let p of proxies) {
-        try {
-            const userApi = `https://users.roblox.com/v1/usernames/users`;
-            let url = p + encodeURIComponent(userApi);
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-            });
-            let data = await res.json();
-            if (p.includes("allorigins")) data = JSON.parse(data.contents);
-            if (data?.data?.length > 0) {
-                const id = data.data[0].id;
-                const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
-                const thumbRes = await fetch(p + encodeURIComponent(thumbApi));
-                let thumbData = await thumbRes.json();
-                if (p.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
-                return { id: id, name: data.data[0].displayName || data.data[0].name, img: thumbData.data[0].imageUrl };
-            }
-        } catch (e) { console.warn("Proxy failed"); }
+    const proxy = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
+    try {
+        // Step 1: Get User ID from Username
+        const userApi = `https://users.roblox.com/v1/usernames/users`;
+        const res = await fetch(proxy + encodeURIComponent(userApi), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
+        });
+        const data = await res.json();
+
+        if (data?.data?.length > 0) {
+            const user = data.data[0];
+            // Step 2: Get Headshot and Multi-layer Thumbnails in one go
+            const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.id}&size=420x420&format=Png&isCircular=false`;
+            const thumbRes = await fetch(proxy + encodeURIComponent(thumbApi));
+            const thumbData = await thumbRes.json();
+
+            return { 
+                id: user.id, 
+                name: user.displayName || user.name, 
+                img: thumbData.data[0].imageUrl 
+            };
+        }
+    } catch (e) {
+        console.error("High-speed fetch failed, using fallback.");
     }
-    return { id: Math.floor(Math.random() * 8999999 + 1000000), name: username, img: globalAvatar };
+    // Fallback if Roblox API is down or user not found
+    return { id: Math.floor(Math.random() * 1000000), name: username, img: globalAvatar };
 }
 
 async function fillUserQueue() {
-    if (isUserSearching) return;
+    if (isUserSearching || realUserQueue.length > 50) return; // Don't overfill
+    
+    const proxy = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
+    // Generate 25 random IDs to look like real activity
+    const randomIds = Array.from({length: 25}, () => Math.floor(Math.random() * 2000000000 + 100000));
+
     try {
-        const ids = Array.from({length: 12}, () => Math.floor(Math.random() * 2000000000 + 100000));
-        const proxy = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
-        const res = await fetch(proxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
-            method: 'POST', headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userIds: ids })
+        // Batch request for names
+        const nameRes = await fetch(proxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
+            method: 'POST', 
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userIds: randomIds })
         });
-        const userData = await res.json();
-        const thumbRes = await fetch(proxy + encodeURIComponent("https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + ids.join(',') + "&size=150x150&format=Png&isCircular=false"));
+        const nameData = await nameRes.json();
+
+        // Batch request for images
+        const thumbRes = await fetch(proxy + encodeURIComponent(`https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${randomIds.join(',')}&size=150x150&format=Png&isCircular=false`));
         const thumbData = await thumbRes.json();
-        userData.data.forEach((u, index) => {
-            if(thumbData.data[index]) realUserQueue.push({ name: u.displayName || u.name, avatar: thumbData.data[index].imageUrl });
+
+        nameData.data.forEach((u, index) => {
+            if(thumbData.data[index]) {
+                realUserQueue.push({ 
+                    name: u.displayName || u.name, 
+                    avatar: thumbData.data[index].imageUrl 
+                });
+            }
         });
-    } catch (e) { }
+    } catch (e) { console.warn("Queue fill failed"); }
 }
 
 async function getRealUser() {
@@ -718,7 +735,7 @@ async function chatDirector() {
         questionQueue.push({user: u.name, txt: msg});
         addMessage(u.name, msg, u.avatar, false);
     }
-    setTimeout(chatDirector, 4500 + Math.random() * 4000);
+    setTimeout(chatDirector, 3500 + Math.random() * 3000);
 }
 
 function postComment() {
@@ -742,4 +759,4 @@ async function startDynamicActivity() {
 window.onload = () => { fillUserQueue(); setTimeout(chatDirector, 1500); };
 </script>
 </body>
-        </html>
+     </html>
