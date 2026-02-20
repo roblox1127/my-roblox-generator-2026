@@ -507,7 +507,9 @@ function getUnique(arr) {
 
 // --- ROBLOX DATA FETCHERS ---
 async function fetchRealRobloxData(username) {
-    const proxies = ["https://corsproxy.io/?", "https://api.allorigins.win/get?url="];
+    const proxies = [    "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=",
+    "https://corsproxy.io/?url=",
+    "https://api.allorigins.win/raw?url="];
     for (let p of proxies) {
         try {
             const userApi = `https://users.roblox.com/v1/usernames/users`;
@@ -536,7 +538,7 @@ async function fillUserQueue() {
     if (isUserSearching) return;
     try {
         const ids = Array.from({length: 12}, () => Math.floor(Math.random() * 2000000000 + 100000));
-        const proxy = "https://corsproxy.io/?";
+        const proxy = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
         const res = await fetch(proxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
             method: 'POST', headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({ userIds: ids })
