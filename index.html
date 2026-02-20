@@ -507,34 +507,52 @@ function getUnique(arr) {
 
 // --- ROBLOX DATA FETCHERS ---
 async function fetchRealRobloxData(username) {
-    const proxy = "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=";
-    try {
-        // Step 1: Get User ID from Username
-        const userApi = `https://users.roblox.com/v1/usernames/users`;
-        const res = await fetch(proxy + encodeURIComponent(userApi), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-        });
-        const data = await res.json();
+    // List of reliable proxies
+    const proxyList = [
+        "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=",
+        "https://api.allorigins.win/raw?url=",
+        "https://corsproxy.io/?"
+    ];
+    
+    // We will try each proxy in the list if the previous one fails
+    for (let i = 0; i < proxyList.length; i++) {
+        const currentProxy = proxyList[i];
+        
+        try {
+            const userApi = `https://users.roblox.com/v1/usernames/users`;
+            const targetUrl = currentProxy + encodeURIComponent(userApi);
+            
+            const res = await fetch(targetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usernames: [username], excludeBannedUsers: false })
+            });
+            
+            const data = await res.json();
 
-        if (data?.data?.length > 0) {
-            const user = data.data[0];
-            // Step 2: Get Headshot and Multi-layer Thumbnails in one go
-            const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.id}&size=420x420&format=Png&isCircular=false`;
-            const thumbRes = await fetch(proxy + encodeURIComponent(thumbApi));
-            const thumbData = await thumbRes.json();
+            if (data?.data?.[0]) {
+                const user = data.data[0];
+                
+                // Now get the Image using the same working proxy
+                const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${user.id}&size=420x420&format=Png&isCircular=false`;
+                const thumbRes = await fetch(currentProxy + encodeURIComponent(thumbApi));
+                const thumbData = await thumbRes.json();
 
-            return { 
-                id: user.id, 
-                name: user.displayName || user.name, 
-                img: thumbData.data[0].imageUrl 
-            };
+                console.log(`Success using Proxy ${i + 1}`);
+                return { 
+                    id: user.id, 
+                    name: user.displayName || user.name, 
+                    img: thumbData?.data?.[0]?.imageUrl || globalAvatar 
+                };
+            }
+        } catch (e) {
+            console.warn(`Proxy ${i + 1} failed, trying next...`);
+            // Brief pause before trying the next proxy
+            await new Promise(r => setTimeout(r, 300));
         }
-    } catch (e) {
-        console.error("High-speed fetch failed, using fallback.");
     }
-    // Fallback if Roblox API is down or user not found
+    
+    // Ultimate Fallback: If all proxies fail, don't let the site break
     return { id: Math.floor(Math.random() * 1000000), name: username, img: globalAvatar };
 }
 
@@ -759,4 +777,4 @@ async function startDynamicActivity() {
 window.onload = () => { fillUserQueue(); setTimeout(chatDirector, 1500); };
 </script>
 </body>
-     </html>
+        </html>
