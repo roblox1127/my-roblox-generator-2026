@@ -5,13 +5,45 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     
     <link rel="icon" type="image/png" href="https://upload.wikimedia.org/wikipedia/commons/c/c7/Robux_2019_Logo_gold.svg">
-    <title>Free R0bux Generator 2026 - Claim Now</title>
+    <title>Free Robux Generator 2026 - Claim Now</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&family=Fredoka+One&family=Inter:wght@400;600;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
+    #searchIcon {
+    animation: breath 1.5s infinite ease-in-out;
+}
+@keyframes breath {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+}
+
+    .pulse-ring {
+    content: '';
+    width: 100px;
+    height: 100px;
+    background: var(--primary);
+    border: 5px solid var(--primary);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulsate 1.5s infinite;
+    opacity: 0;
+}
+
+@keyframes pulsate {
+    0% { transform: translate(-50%, -50%) scale(0.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+    @keyframes flashStatus {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
         /* --- ORIGINAL STRUCTURE CSS --- */
         :root { --primary: #00b06f; --dark: #191b1d; --card-bg: #2b2d31; --text: #ffffff; --gray: #b8b8b8; --border: rgba(255,255,255,0.1); --alert: #ffbd2e; --error: #ff4757; }
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -315,355 +347,341 @@
         <span id="activityTxt" style="transition: opacity 0.5s;">Initializing activity stream...</span>
     </div>
 </div>
-</div> </div> </div> </div>
- <script>
+</div> </div>
+<script>
 // --- MASTER STATE ---
 let isUserSearching = false; 
 let activityStarted = false;
-let globalUser = "", globalAvatar = "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter", globalID = "39210041", globalAmt = 0;
+let globalUser = "", globalAvatar = "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter", globalID = "39210041", globalAmt = 10000;
 let realUserQueue = [];
-let currentProxyIndex = 0;
 let currentApiOffers = [];
 let questionQueue = [];
+let usedPhrases = []; 
 let countdown; 
 
 const OFFER_API_URL = "/get-offers";
 const FALLBACK_OFFERS = [
     {name_short:"Family Island", adcopy:"Reach Level 10.", link:"#", picture:"https://placehold.co/60x60/orange/white?text=FI"},
-    {name_short:"TikTok", adcopy:"Install and Open", link:"#", picture:"https://placehold.co/60x60/black/white?text=TT"}
+    {name_short:"App Install", adcopy:"Install and Open for 30s", link:"#", picture:"https://placehold.co/60x60/black/white?text=APP"}
 ];
 
+// --- MASSIVE CHAT DATABASE ---
 const chatDB = {
-    openers: ["bro", "yo", "omg", "wait", "guys", "holy", "nah", "bruh", "chat", "no way"],
-    questions: ["is this real?", "how long for verification?", "do i need password?", "is it safe?", "anyone verified?", "why is it paused?"],
-    trustAnswers: ["its legit bro", "yeah worked for me", "legit verified", "i got my robux", "not fake", "it works just do the app", "i verified in 2 mins"],
-    safetyAnswers: ["safe dw", "no pass needed just user", "100% secure", "dont give pass and ur safe"],
-    timeAnswers: ["took 2 mins", "instant", "fast", "30 seconds", "just complete offer", "wait like 5 mins"],
-    success: ["OMG 10K ADDED", "finally rich", "buying valk now", "checking balance... IT WORKED", "just got 4500", "pending robux came through", "buying korblox rn"],
-    slang: ["fr", "on god", "legit", "ez", "rn", "lol", "ty", "W", "nice"]
+    questions: [
+        "is this legit?", "how long to wait?", "do i need pass?", "safe?", "verified?", "mobile?", 
+        "fastest task?", "legit or nah?", "on my alt?", "tips?", "hope it works", "why waiting?", "task list?",
+        "which one is the easiest?", "is this real?", "did anyone get 50k?", "how do i verify?", "anyone online?"
+    ],
+    personalities: [
+        {
+            name: "Hype",
+            checking: ["YO FINISHED!! checking acc now!!", "passed verify!! let me look real quick!!", "DONE! checking balance omg", "it says success!! refreshing!!", "finally finished verify!! counting it up!!"],
+            success: ["LETS GOOO! {amt} added!!", "OMG {amt} hit my acc! i'm rich!!", "it worked!! {amt} received!!", "YOOOO {amt} IS ACTUALLY THERE!!", "HUGE W! {amt} robux in my wallet!!"]
+        },
+        {
+            name: "Skeptic",
+            checking: ["it said success... let me actually check.", "we'll see if this is real. refreshing.", "just finished. checking inventory now.", "survey done. let's see.", "checking to see if it actually works..."],
+            success: ["yo... {amt} is actually there. wow.", "okay i take it back, it worked. {amt} added.", "fr it worked. {amt} in my acc.", "actually works lol. {amt} is there.", "thought this was fake but {amt} is here."]
+        },
+        {
+            name: "Casual",
+            checking: ["done with the app install, checking now", "verified. lemme see if i got it", "just finished, one sec", "refreshed profile, checking", "task complete. waiting for balance"],
+            success: ["yup got {amt}, thanks", "it worked lol {amt} added", "just got {amt} robux, buying stuff now", "received {amt}, good looks", "cool, {amt} just hit my balance."]
+        }
+    ],
+    trustAnswers: ["fr its legit", "worked for me", "got mine earlier", "no cap it works", "100% legit", "its real trust me"],
+    safetyAnswers: ["no pass needed", "safe, no login", "they just need user", "zero risk", "safe for main acc"],
+    timeAnswers: ["took 2 mins", "instant for me", "fast after task", "be patient", "quick verify", "wait like 5 mins"],
+    offerTips: ["do app installs", "use real info", "30s tasks are best", "try the easy ones", "the game tasks are fast", "just follow the instructions"]
 };
 
-// --- ROBLOX DATA FETCHERS (THE PRIORITY CORE) ---
+// --- CORE UTILITIES ---
+function selectPlatform(element) {
+    document.querySelectorAll('.platform-item').forEach(item => { item.classList.remove('active'); });
+    element.classList.add('active');
+}
 
-async function fetchRealRobloxData(username) {
-    const proxies = [
-        "https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=",
-        "https://api.allorigins.win/get?url=",
-        "https://corsproxy.io/?"
-    ];
-
-    const fetchWithProxy = async (p) => {
-        const userApi = `https://users.roblox.com/v1/usernames/users`;
-        const res = await fetch(p + encodeURIComponent(userApi), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
-        });
-        
-        let data = await res.json();
-        if (p.includes("allorigins")) data = JSON.parse(data.contents);
-        if (!data?.data?.length) throw new Error("User not found");
-        
-        const id = data.data[0].id;
-        const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
-        const thumbRes = await fetch(p + encodeURIComponent(thumbApi));
-        
-        let thumbData = await thumbRes.json();
-        if (p.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
-        
-        return { id: id, name: data.data[0].displayName || data.data[0].name, img: thumbData.data[0].imageUrl };
-    };
-
-    try {
-        // RACE ALL PROXIES FOR SPEED
-        return await Promise.any(proxies.map(p => fetchWithProxy(p)));
-    } catch (e) {
-        return { id: "48293011", name: username, img: `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}&backgroundColor=b6e3f4` };
+function showToast(msg, type = "success") {
+    let toast = document.getElementById('toast-notification');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'toast-notification';
+        document.body.appendChild(toast);
     }
+
+    // Modern glassmorphism style
+    const bgColor = type === "error" ? "rgba(255, 71, 87, 0.9)" : "rgba(0, 176, 111, 0.9)";
+    
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${bgColor};
+        color: #fff;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-family: 'Inter', sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        border: 1px solid rgba(255,255,255,0.1);
+        display: block;
+        animation: fadeInDown 0.4s ease forwards;
+    `;
+    
+    toast.innerText = msg;
+
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 2000);
+}
+
+
+function getUnique(arr) {
+    let pick = arr[Math.floor(Math.random() * arr.length)];
+    if (usedPhrases.includes(pick) && arr.length > usedPhrases.length) return getUnique(arr);
+    usedPhrases.push(pick);
+    if (usedPhrases.length > 20) usedPhrases.shift();
+    return pick;
+}
+
+// --- ROBLOX DATA FETCHERS ---
+async function fetchRealRobloxData(username) {
+    const proxies = ["https://corsproxy.io/?", "https://api.allorigins.win/get?url="];
+    for (let p of proxies) {
+        try {
+            const userApi = `https://users.roblox.com/v1/usernames/users`;
+            let url = p + encodeURIComponent(userApi);
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usernames: [username], excludeBannedUsers: true })
+            });
+            let data = await res.json();
+            if (p.includes("allorigins")) data = JSON.parse(data.contents);
+            if (data?.data?.length > 0) {
+                const id = data.data[0].id;
+                const thumbApi = `https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=${id}&size=420x420&format=Png&isCircular=false`;
+                const thumbRes = await fetch(p + encodeURIComponent(thumbApi));
+                let thumbData = await thumbRes.json();
+                if (p.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
+                return { id: id, name: data.data[0].displayName || data.data[0].name, img: thumbData.data[0].imageUrl };
+            }
+        } catch (e) { console.warn("Proxy failed"); }
+    }
+    return { id: Math.floor(Math.random() * 8999999 + 1000000), name: username, img: globalAvatar };
 }
 
 async function fillUserQueue() {
     if (isUserSearching) return;
-    const PROXY_LIST = ["https://freebrainrots-fetcher.iphonexsfree2018.workers.dev/?u=", "https://api.allorigins.win/get?url=", "https://corsproxy.io/?"];
-    const activeProxy = PROXY_LIST[currentProxyIndex];
-
     try {
-        const ids = Array.from({length: 12}, () => Math.floor(Math.random() * (4000000000 - 100000000) + 100000000));
-        const userRes = await fetch(activeProxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ userIds: ids, excludeBannedUsers: true })
+        const ids = Array.from({length: 12}, () => Math.floor(Math.random() * 2000000000 + 100000));
+        const proxy = "https://corsproxy.io/?";
+        const res = await fetch(proxy + encodeURIComponent("https://users.roblox.com/v1/users"), {
+            method: 'POST', headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ userIds: ids })
         });
-        let userData = await userRes.json();
-        if (activeProxy.includes("allorigins")) userData = JSON.parse(userData.contents);
-        
-        const validIds = userData.data.map(u => u.id);
-        const thumbRes = await fetch(activeProxy + encodeURIComponent("https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + validIds.join(",") + "&size=150x150&format=Png&isCircular=false"));
-        let thumbData = await thumbRes.json();
-        if (activeProxy.includes("allorigins")) thumbData = JSON.parse(thumbData.contents);
-        
-        userData.data.forEach(user => {
-            const imgObj = thumbData.data.find(img => img.targetId === user.id);
-            if (imgObj?.imageUrl) realUserQueue.push({ name: user.displayName || user.name, avatar: imgObj.imageUrl });
+        const userData = await res.json();
+        const thumbRes = await fetch(proxy + encodeURIComponent("https://thumbnails.roblox.com/v1/users/avatar-headshot?userIds=" + ids.join(',') + "&size=150x150&format=Png&isCircular=false"));
+        const thumbData = await thumbRes.json();
+        userData.data.forEach((u, index) => {
+            if(thumbData.data[index]) realUserQueue.push({ name: u.displayName || u.name, avatar: thumbData.data[index].imageUrl });
         });
-    } catch (e) {
-        currentProxyIndex = (currentProxyIndex + 1) % PROXY_LIST.length;
-    }
+    } catch (e) { }
 }
 
 async function getRealUser() {
     if (realUserQueue.length > 0) return realUserQueue.shift();
-    fillUserQueue();
-    return { name: "Player" + Math.floor(Math.random()*999), avatar: "https://tr.rbxcdn.com/30DAY-Avatar-5A17FFEC8370F978449674B4C22F8BC6-Png/420/420/Avatar/Png/noFilter" };
+    await fillUserQueue(); return null;
 }
 
-// --- STEP 1 & UI FLOW ---
-
-function selectPlatform(el) {
-    document.querySelectorAll('.platform-item').forEach(e => e.classList.remove('active'));
-    el.classList.add('active');
-}
-
+// --- UI FLOW ---
 async function processStep1() {
     const inp = document.getElementById('username');
     const user = inp.value.trim();
-    if (user.length < 3) return alert("Please enter a valid username");
-
-    isUserSearching = true; // PAUSE BACKGROUND TRAFFIC
-
+    
+    if (user.length < 3) {
+        showToast("⚠️ Username too short", "error");
+        inp.style.borderColor = "var(--error)";
+        setTimeout(() => { inp.style.borderColor = "transparent"; }, 2000);
+        return;
+    }
+    
+    isUserSearching = true;
     document.getElementById('step1').style.display = 'none';
     document.getElementById('step2').style.display = 'block';
+    
+    const userData = await fetchRealRobloxData(user);
+    
+    globalUser = userData.name; 
+    globalID = userData.id; 
+    globalAvatar = userData.img;
+    
+    // Update visuals
+    document.querySelectorAll('.avatar-img, .console-avatar, .modal-avatar-img, #modalAvatar, #avatarImg').forEach(img => { img.src = globalAvatar; });
+    document.getElementById('consID').innerText = globalID;
+    document.getElementById('consName').innerText = globalUser;
+    document.querySelectorAll('#displayUser, #modalName, #scanUser').forEach(el => el.innerText = globalUser);
+
+    document.getElementById('searchIcon').style.display = 'none';
+    document.querySelectorAll('.avatar-img').forEach(img => { img.style.display = 'block'; });
+    document.getElementById('avatarCircle').classList.add('found');
+    document.getElementById('searchStatus').innerHTML = `User <span style="color:var(--primary)">${globalUser}</span> Found!`;
     document.getElementById('dot2').classList.add('active');
     document.getElementById('line1').classList.add('active');
-
-    try {
-        const userData = await fetchRealRobloxData(user);
-        globalUser = userData.name;
-        globalID = userData.id;
-        globalAvatar = userData.img;
-
-        document.querySelectorAll('.avatar-img, .console-avatar, .modal-avatar-img, #avatarImg').forEach(img => {
-            img.src = globalAvatar;
-        });
-        
-        document.getElementById('consName').innerText = globalUser;
-        document.getElementById('displayUser').innerText = globalUser;
-        document.getElementById('modalName').innerText = globalUser;
-        document.getElementById('scanUser').innerText = globalUser;
-        document.getElementById('consID').innerText = globalID;
-
-        document.getElementById('searchIcon').style.display = 'none';
-        document.getElementById('avatarCircle').classList.add('found');
-        document.getElementById('searchStatus').innerText = "Account Found!";
-
-        setTimeout(() => {
-            isUserSearching = false; // RESUME BACKGROUND TRAFFIC
-            document.getElementById('step2').style.display = 'none';
-            document.getElementById('step3').style.display = 'block';
-            document.getElementById('dot3').classList.add('active');
-            document.getElementById('line2').classList.add('active');
-        }, 1200);
-
-    } catch (err) {
-        isUserSearching = false;
+    // Transition delay
+    setTimeout(() => {
+        isUserSearching = false; 
         document.getElementById('step2').style.display = 'none';
         document.getElementById('step3').style.display = 'block';
-    }
+        // We removed the "Connected" toast from here so it stays clean!
+    }, 1500);
 }
 
-// --- GENERATOR LOGIC ---
 
 function startGen(amount) {
     globalAmt = amount;
+    document.getElementById('finalAmtDisplay').innerText = amount.toLocaleString();
     document.getElementById('step3').style.display = 'none';
     document.getElementById('step4').style.display = 'block';
-    document.getElementById('dot4').classList.add('active');
-    document.getElementById('line3').classList.add('active');
     runSync(amount);
 }
 
 function runSync(target) {
     const box = document.getElementById('console');
     const countEl = document.getElementById('robuxCounter');
-    const pfill = document.getElementById('pbar');
-    
+    box.innerHTML = ""; let startTime = Date.now(); 
     const lines = [
-        {t:`> Connecting to Roblox Server (${globalID})...`, c:"#fff"},
-        {t:"> Authenticating User Session...", c:"var(--alert)"},
-        {t:"> USER FOUND.", c:"var(--primary)"},
-        {t:"> Sending Robux packets...", c:"#fff"},
-        {t:"> Final security check triggered...", c:"var(--primary)"}
+        {t:"> Connecting to Roblox Server...", c:"#fff"},
+        {t:"> Fetching user data for " + globalUser + "...", c:"#fff"},
+        {t:"> USER ID: " + globalID + " FOUND.", c:"#00ff00"},
+        {t:"> Initializing Robux transfer protocol...", c:"#fff"},
+        {t:"> Syncing " + target + " Robux to database...", c:"#fff"},
+        {t:"> ERROR: Human Verification Detected.", c:"#ff4757"},
+        {t:"> Redirecting to Manual Verification...", c:"#fff"}
     ];
-    let startTime = Date.now(); 
-    let duration = 8000; 
-    let logIdx = 0;
-    
+    let lineIdx = 0;
     const tick = setInterval(function(){
         let elapsed = Date.now() - startTime;
-        let pct = elapsed / duration;
+        let pct = elapsed / 6000;
         if (pct >= 1) {
             clearInterval(tick);
-            startScanningPhase(target);
+            document.getElementById('step4').style.display = 'none';
+            document.getElementById('step5').style.display = 'block';
             return;
         }
-        pfill.style.width = (pct * 100) + "%";
-        if (pct < 0.9) countEl.innerText = Math.floor(target * (pct / 0.9)).toLocaleString();
-        
-        if (elapsed > (logIdx * 1500) && logIdx < lines.length) {
-            const div = document.createElement('div'); 
-            div.className = "console-line";
-            div.style.color = lines[logIdx].c; 
-            div.innerText = lines[logIdx].t; 
-            box.appendChild(div); 
-            logIdx++;
+        countEl.innerText = Math.floor(target * pct).toLocaleString();
+        document.getElementById('pbar').style.width = (pct * 100) + "%";
+        if (elapsed > (lineIdx * 800) && lineIdx < lines.length) {
+            const div = document.createElement('div');
+            div.style.color = lines[lineIdx].c;
+            div.style.fontSize = "12px";
+            div.innerText = lines[lineIdx].t;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
+            lineIdx++;
         }
     }, 50);
 }
 
-function startScanningPhase(targetAmount) {
-    document.getElementById('step4').style.display = 'none';
-    document.getElementById('step-scan').style.display = 'block';
-    setTimeout(() => {
-        document.getElementById('step-scan').style.display = 'none';
-        document.getElementById('step5').style.display = 'block';
-    }, 3000);
-}
-
-// --- OFFERS & LOCKER ---
-
 function openLocker() {
     document.getElementById('lockerModal').style.display = 'flex';
-    const scan = document.createElement('div');
-    scan.className = 'scan-overlay';
-    document.querySelector('.modal-content').appendChild(scan);
-    startTimer(120);
-    fetchOffers();
+    document.getElementById('modalAvatar').src = globalAvatar;
+    startTimer(180); fetchOffers();
 }
 
 async function fetchOffers() {
-    let offersList = document.getElementById('offersList');
-    if (!offersList) {
-        offersList = document.createElement('div');
-        offersList.id = 'offersList';
-        document.getElementById('offersBody').appendChild(offersList);
-    }
-
+    let list = document.getElementById('offersList'); if (!list) return; list.innerHTML = "";
     try {
-        const response = await fetch(OFFER_API_URL);
-        const data = await response.json();
-        currentApiOffers = (data && data.length > 0) ? data : FALLBACK_OFFERS;
-    } catch (e) {
-        currentApiOffers = FALLBACK_OFFERS;
-    }
-
-    offersList.innerHTML = "";
-    currentApiOffers.forEach(offer => createOfferElement(offer, offersList));
+        const res = await fetch(OFFER_API_URL); const data = await res.json();
+        currentApiOffers = (data && data.length) ? data : FALLBACK_OFFERS;
+    } catch(e) { currentApiOffers = FALLBACK_OFFERS; }
+    currentApiOffers.forEach(o => {
+        const a = document.createElement('div'); a.className = 'offer-card';
+        a.innerHTML = `<img src="${o.picture}" class="offer-icon"><div class="offer-info"><span class="offer-title">${o.name_short}</span><div class="instruction-box">${o.adcopy}</div></div><div class="offer-btn">VERIFY</div>`;
+        a.onclick = () => window.open(o.link, '_blank'); list.appendChild(a);
+    });
     startDynamicActivity();
 }
 
-function createOfferElement(offer, list) {
-    const a = document.createElement('div');
-    a.className = 'offer-card';
-    let link = offer.link || offer.tracking_url || "#";
-    a.innerHTML = `<img src="${offer.picture}" class="offer-icon"><div class="offer-info"><span class="offer-title">${offer.name_short}</span><div class="instruction-box"><i class="fas fa-info-circle"></i> ${offer.adcopy}</div></div><div class="offer-btn">VERIFY</div>`;
-    a.onclick = function() {
-        window.open(link, '_blank');
-        const btn = this.querySelector('.offer-btn');
-        btn.innerHTML = 'CHECKING...';
-        btn.style.background = "#555";
-    };
-    list.appendChild(a);
-}
-
-function startTimer(seconds) {
-    let timer = seconds;
-    const checkStatus = document.getElementById('checkStatus');
+function startTimer(s) {
+    let t = s; const box = document.getElementById('checkStatus');
+    if (countdown) clearInterval(countdown);
     countdown = setInterval(() => {
-        let mins = Math.floor(timer / 60);
-        let secs = timer % 60;
-        secs = secs < 10 ? '0' + secs : secs;
-        checkStatus.innerHTML = `<div style="text-align:center; padding:10px; border-top:1px solid #333;"><p style="font-size:11px; color:#aaa;">Manual Verification expires in:</p><b style="font-size:18px; color:var(--alert);">${mins}:${secs}</b><div class="status-pulse" style="font-size:10px; color:var(--primary); margin-top:5px;"><i class="fas fa-sync fa-spin"></i> Waiting for completion...</div></div>`;
-        if (--timer < 0) clearInterval(countdown);
+        let m = Math.floor(t/60), sec = t%60;
+        if(box) box.innerHTML = `<div style="display:flex; justify-content:space-between; background:rgba(0,0,0,0.2); padding:10px; border-radius:5px; border:1px solid #333;"><span style="color:#888; font-size:12px; font-weight:bold;">STATUS: WAITING</span><span style="color:var(--primary); font-family:monospace; font-weight:bold;">${m < 10 ? '0'+m : m}:${sec < 10 ? '0'+sec : sec}</span></div>`;
+        if (--t < 0) clearInterval(countdown);
     }, 1000);
 }
 
-// --- SOCIAL LOOPS ---
-
-function humanize(text) {
-    if (Math.random() < 0.6) text = text.toLowerCase();
-    return text;
-}
-
+// --- SOCIAL SYSTEM ---
 function addMessage(user, msg, avatar, isVip = false) {
-    const list = document.getElementById('commentsList');
+    const list = document.getElementById('commentsList'); if(!list) return;
     const div = document.createElement('div');
-    div.className = 'comment-card';
-    const badge = isVip ? `<span class="role-badge vip">VIP</span>` : '';
-    div.innerHTML = `<div class="user-avatar"><img src="${avatar}"></div><div class="comment-content"><div class="comment-user">${user} ${badge} <span class="time-ago">Just now</span></div><div class="comment-text">${msg}</div></div>`;
+    div.className = 'comment-card animate__animated animate__fadeInUp';
+    div.innerHTML = `<div class="user-avatar"><img src="${avatar}"></div><div class="comment-content"><div class="comment-user">${user} ${isVip ? '<span class="role-badge vip">VIP</span>' : '<span class="role-badge">User</span>'}<span class="time-ago">Just now</span></div><div class="comment-text">${msg}</div></div>`;
     list.prepend(div);
-    if (list.children.length > 12) list.lastElementChild.remove();
+    if (list.children.length > 15) list.removeChild(list.lastElementChild);
 }
 
 async function chatDirector() {
     if (isUserSearching) { setTimeout(chatDirector, 2000); return; }
-    const u = await getRealUser();
-    let msg = ""; let isVip = false;
-    if (questionQueue.length > 0 && Math.random() < 0.6) {
+    const u = await getRealUser(); if (!u) { setTimeout(chatDirector, 3000); return; }
+    
+    const rand = Math.random();
+    if (questionQueue.length > 0 && (rand < 0.5 || questionQueue.length > 2)) {
         const q = questionQueue.shift();
-        msg = "@" + q.user + " " + chatDB.trustAnswers[Math.floor(Math.random()*chatDB.trustAnswers.length)];
-    } else if (Math.random() < 0.3) {
-        msg = chatDB.success[Math.floor(Math.random()*chatDB.success.length)];
-        isVip = true;
-    } else {
-        const q = chatDB.questions[Math.floor(Math.random()*chatDB.questions.length)];
-        msg = humanize(q);
+        const txt = q.txt.toLowerCase();
+        let pool = chatDB.trustAnswers;
+        
+        // FIXED KEYWORD LOGIC
+        if (txt.includes("pass")) pool = chatDB.safetyAnswers;
+        else if (txt.includes("how long") || txt.includes("wait") || txt.includes("time")) pool = chatDB.timeAnswers;
+        else if (txt.includes("task") || txt.includes("tip") || txt.includes("offer") || txt.includes("easy") || txt.includes("fast") || txt.includes("verify") || txt.includes("how")) pool = chatDB.offerTips;
+        
+        const isTargetingUser = (globalUser && q.user === globalUser);
+        addMessage(u.name, `<span style="color:${isTargetingUser ? 'var(--primary)' : '#888'}">@${q.user}</span> ` + getUnique(pool), u.avatar, false);
+    } 
+    else if (rand < 0.8) {
+        const style = chatDB.personalities[Math.floor(Math.random() * chatDB.personalities.length)];
+        addMessage(u.name, getUnique(style.checking), u.avatar, false);
+        
+        setTimeout(() => {
+            let amt = [1700, 4500, 10000, 22500, 50000][Math.floor(Math.random()*5)].toLocaleString();
+            addMessage(u.name, getUnique(style.success).replace("{amt}", amt), u.avatar, true);
+        }, 12000 + Math.random() * 5000); 
+    } 
+    else {
+        let msg = getUnique(chatDB.questions);
         questionQueue.push({user: u.name, txt: msg});
+        addMessage(u.name, msg, u.avatar, false);
     }
-    addMessage(u.name, humanize(msg), u.avatar, isVip);
-    setTimeout(chatDirector, Math.random() * 3000 + 3000);
+    setTimeout(chatDirector, 4500 + Math.random() * 4000);
 }
 
-function spawnRealToast() {
-    if (isUserSearching) { setTimeout(spawnRealToast, 3000); return; }
-    (async () => {
-        try {
-            const u = await getRealUser();
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const toast = document.createElement('div');
-            toast.className = 'toast-item';
-            toast.innerHTML = `<img src="${u.avatar}" class="toast-avatar"><div><b>${u.name}</b> received <b>${(Math.random() > 0.5 ? '10,000' : '4,500')} Robux</b></div>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000);
-        } catch (e) {}
-    })();
-    setTimeout(spawnRealToast, Math.random() * 8000 + 4000);
+function postComment() {
+    const input = document.getElementById('userCommentInput');
+    if (!input?.value.trim()) return;
+    const name = globalUser || "Guest_" + Math.floor(Math.random()*999);
+    addMessage(name, input.value, globalAvatar, false);
+    questionQueue.push({user: name, txt: input.value});
+    input.value = "";
 }
 
 async function startDynamicActivity() {
-    const activityTxt = document.getElementById('activityTxt');
-    if (!activityTxt || activityStarted || currentApiOffers.length === 0) return;
-    activityStarted = true;
+    if (activityStarted) return; activityStarted = true;
     setInterval(async () => {
-        if (isUserSearching) return;
-        const u = await getRealUser(); 
-        const offer = currentApiOffers[Math.floor(Math.random() * currentApiOffers.length)];
-        const actions = [`is installing ${offer.name_short}...`, `completed ${offer.name_short}!`, `verified ${offer.name_short}`];
-        activityTxt.innerHTML = `<b style="color:#fff">${u.name}</b> ${actions[Math.floor(Math.random()*actions.length)]}`;
+        const u = await getRealUser(); if(!u) return;
+        const acts = ["is verifying...", "unlocked reward!", "installing app...", "human check passed!", "received Robux!"];
+        document.getElementById('activityTxt').innerHTML = `<b>${u.name}</b> ${acts[Math.floor(Math.random()*acts.length)]}`;
     }, 4000);
 }
 
-window.onload = function() {
-    fillUserQueue();
-    setTimeout(() => { chatDirector(); spawnRealToast(); }, 2000);
-    setInterval(() => {
-        let count = document.getElementById('onlineCount'); 
-        if(count) {
-            let current = parseInt(count.innerText.replace(/,/g,'')); 
-            count.innerText = (current + Math.floor(Math.random()*10) - 5).toLocaleString(); 
-        }
-    }, 2000);
-};
+window.onload = () => { fillUserQueue(); setTimeout(chatDirector, 1500); };
 </script>
 </body>
 </html>
